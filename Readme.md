@@ -24,6 +24,7 @@ const query = SQL`
   SELECT id, name, age
   FROM users
   WHERE id = ${'192dadd1-e1d4-486d-81cb-01f43c7518ad'}
+  AND age > ${42}
 `
 ```
 ```
@@ -40,6 +41,7 @@ await pg.query(SQL`
   SELECT id, name, age
   FROM users
   WHERE id = ${'192dadd1-e1d4-486d-81cb-01f43c7518ad'}
+  AND age > ${42}
 `)
 ```
 
@@ -120,6 +122,7 @@ SQL`
   SELECT id, name, age
   FROM users
   WHERE id = ${'192dadd1-e1d4-486d-81cb-01f43c7518ad'}
+  AND age > ${42}
 `
 ```
 
@@ -185,7 +188,7 @@ sql`
 ```
 
 #### `AND`
-`AND([ident: String], params: Object)`
+`AND([table: String], params: Object)`
 
 ```js
 SQL`
@@ -196,7 +199,7 @@ SQL`
 `
 ```
 
-The same as the [`WHERE`](#where) helper, but the keyword will be `AND` instead. Useful when you've already got a hardcoded `WHERE` you need to augment.
+The same as the [`WHERE`](#where) helper, but the keyword will be `AND` instead. Useful when you've already got a hardcoded `WHERE` you need to augment. The `table` string is optional, but can be passed to qualify the columns to match.
 
 #### `IDENT`
 `IDENT(string: String)`
@@ -211,7 +214,7 @@ SQL`
 Outputs a `string` as an escaped SQL identifier. Useful when you need an identifier to be dynamic, because without using `IDENT` it will be treated as an interpolated value.
 
 #### `JOIN`
-`JOIN(fragments: Array, [delimiter: String])`
+`JOIN(clauses: Array, [delimiter: String])`
 
 ```js
 const clauses = users.map(user => SQL`${user.id}`)
@@ -260,7 +263,7 @@ SQL`
 `
 ```
 
-**CAUTION:** This method is not safe! You should not pass dynamic user input to it, because it does not guard against SQL injection.
+**⚠️ CAUTION:** This method is not safe! You should not pass dynamic user input to it, because it does not guard against SQL injection.
 
 Inserts a literal SQL value in the string, instead of an interpolated one. This can be useful when you need to control certain SQL statements based on pre-defined options, but be careful because it is not safe.
 
@@ -290,7 +293,7 @@ SQL`
 Safely create a literal SQL "OFFSET" clause from a dynamic `number`. Passing a non-number value will throw an error.
 
 #### `OR`
-`OR([ident: String], params: Object)`
+`OR([table: String], params: Object)`
 
 ```js
 SQL`
@@ -301,7 +304,7 @@ SQL`
 `
 ```
 
-The same as the [`WHERE`](#where) helper, but the keyword will be `OR` instead. Useful when you've already got a hardcoded `WHERE` you need to augment.
+The same as the [`WHERE`](#where) helper, but the keyword will be `OR` instead. Useful when you've already got a hardcoded `WHERE` you need to augment. The `table` string is optional, but can be passed to qualify the columns to match.
 
 #### `ORDER_BY`
 `ORDER_BY([table: String], params: Array)`
@@ -352,7 +355,7 @@ SQL`
 `
 ```
 
-Create a SQL "WHERE" clause from a set of `params`, with optional `table` name string. Useful when writing dynamic filters based on parameters that may or may not be passed.
+Create a SQL "WHERE" clause from a set of `params`, with optional `table` name string. Useful when writing dynamic filters based on parameters that may or may not be passed. The `table` string is optional, but can be passed to qualify the columns to match.
 
 The parameters are nested objects with modifiers: 
 

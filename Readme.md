@@ -29,8 +29,8 @@ const query = SQL`
 ```
 ```
 {
-  text: 'SELECT id, name, age FROM users WHERE id = $1',
-  values: ['192dadd1-e1d4-486d-81cb-01f43c7518ad'],
+  text: 'SELECT id, name, age FROM users WHERE id = $1 AND age > $2',
+  values: ['192dadd1-e1d4-486d-81cb-01f43c7518ad', 42],
 }
 ```
 

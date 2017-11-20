@@ -19,7 +19,7 @@ const IS_IDENTIFIER = /^[a-z_][a-z_0-9]*$/i
  * @type {Symbol}
  */
 
-const TYPES = {
+const KINDS = {
   JOIN: Symbol('JOIN'),
   QUERY: Symbol('QUERY'),
   PLACEHOLDER: Symbol('PLACEHOLDER'),
@@ -50,20 +50,20 @@ function SQL(strings, ...interpolations) {
 
     if (typeof int === 'function') {
       const ret = int()
-      if (ret && ret.type == TYPES.QUERY) {
+      if (ret && ret.type == KINDS.QUERY) {
         int = ret
-      } else if (ret && ret.type == TYPES.JOIN) {
+      } else if (ret && ret.type == KINDS.JOIN) {
         int = ret
       } else {
         return
       }
     }
 
-    if (int && int.type === TYPES.QUERY) {
+    if (int && int.type === KINDS.QUERY) {
       int = JOIN([int])
     }
 
-    if (int && int.type === TYPES.JOIN) {
+    if (int && int.type === KINDS.JOIN) {
       int.clauses.forEach((clause, j) => {
         if (j != 0) u.push(int.delimiter)
         u = u.concat(clause.unformatted)
@@ -72,18 +72,18 @@ function SQL(strings, ...interpolations) {
     }
 
     else {
-      u.push(TYPES.PLACEHOLDER)
+      u.push(KINDS.PLACEHOLDER)
       v.push(int)
     }
   })
 
   let n = 1
   const t = u.reduce((memo, s) => {
-    return s === TYPES.PLACEHOLDER ? `${memo}$${n++}` : `${memo}${s}`
+    return s === KINDS.PLACEHOLDER ? `${memo}$${n++}` : `${memo}${s}`
   }, '')
 
   return {
-    type: TYPES.QUERY,
+    type: KINDS.QUERY,
     text: t,
     unformatted: u,
     values: v,
@@ -151,7 +151,7 @@ function INSERT(ident, value) {
 
 function JOIN(clauses = [], delimiter = ',') {
   return {
-    type: TYPES.JOIN,
+    type: KINDS.JOIN,
     clauses,
     delimiter,
   }
@@ -291,6 +291,34 @@ function PREPARE(name) {
   return (...args) => {
     const ret = SQL(...args)
     ret.name = name
+    return ret
+  }
+}
+
+/**
+ * Create a SQL query with `rowMode: array` enabled.
+ *
+ * @param {Mixed} ...args
+ * @return {Object}
+ */
+
+function ROWS(...args) {
+  const ret = SQL(...args)
+  ret.rowMode = 'array'
+  return ret
+}
+
+/**
+ * Create a SQL query with a custom set of `types` parsers.
+ *
+ * @param {Object} types
+ * @return {Function}
+ */
+
+function TYPES(types) {
+  return (...args) => {
+    const ret = SQL(...args)
+    ret.types = types
     return ret
   }
 }
@@ -443,6 +471,8 @@ const offset = SQL.offset = SQL.OFFSET = OFFSET
 const or = SQL.or = SQL.OR = OR
 const orderBy = SQL.orderBy = SQL.ORDER_BY = ORDER_BY
 const prepare = SQL.prepare = SQL.PREPARE = PREPARE
+const rows = SQL.rows = SQL.ROWS = ROWS
+const types = SQL.types = SQL.TYPES = TYPES
 const update = SQL.update = SQL.UPDATE = UPDATE
 const values = SQL.values = SQL.VALUES = VALUES
 const where = SQL.where = SQL.WHERE = WHERE
@@ -467,6 +497,8 @@ export {
   or, OR,
   orderBy, ORDER_BY,
   prepare, PREPARE,
+  rows, ROWS,
+  types, TYPES,
   update, UPDATE,
   values, VALUES,
   where, WHERE,

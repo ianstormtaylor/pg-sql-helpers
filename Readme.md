@@ -137,10 +137,12 @@ In addition, there are a series of helpers exposed:
 - [`KEYS`](#keys)
 - [`LIMIT`](#limit)
 - [`LITERAL`](#literal)
-- [`PREPARE`](#prepared)
 - [`OFFSET`](#offset)
 - [`OR`](#or)
 - [`ORDER_BY`](#order_by)
+- [`PREPARE`](#prepared)
+- [`ROWS`](#rows)
+- [`TYPES`](#types)
 - [`UPDATE`](#update)
 - [`VALUES`](#values)
 - [`WHERE`](#where)
@@ -267,16 +269,6 @@ SQL`
 
 Inserts a literal SQL value in the string, instead of an interpolated one. This can be useful when you need to control certain SQL statements based on pre-defined options, but be careful because it does not guard against SQL injection.
 
-#### `PREPARE`
-`PREPARE(name: String)`
-
-```js
-SQL.PREPARE('get_users')`
-  SELECT id, name, age
-  FROM users
-`
-```
-
 Create a [prepared SQL statement](https://node-postgres.com/features/queries#prepared-statements), instead of the default unprepared. This can be helpful in certain cases where prepared statements offer better performance.
 
 #### `OFFSET`
@@ -318,6 +310,42 @@ SQL`
 ```
 
 Create a SQL "ORDER BY" clause from an array of `params`. The params are column name identifiers. They default to `ASC NULLS LAST`, but can be prefixed with `'-'` to denote `DESC NULLS LAST`.
+
+#### `PREPARE`
+`PREPARE(name: String)`
+
+```js
+SQL.PREPARE('get_users')`
+  SELECT id, name, age
+  FROM users
+`
+```
+
+#### `ROWS`
+`ROWS`
+
+```js
+SQL.ROWS`
+  SELECT * 
+  FROM users
+`
+```
+
+Create a SQL query object with the [`rowMode: 'array'` option](https://node-postgres.com/features/queries#row-mode) enabled, returning the results as arrays of values instead of JSON objects.
+
+#### `TYPES`
+`TYPES(types: Object)`
+
+```js
+SQL.TYPES({
+  getTypeParser: () => (val) => val
+})`
+  SELECT * 
+  FROM users
+`
+```
+
+Create a SQL query with a [custom set of `types` parsers](https://node-postgres.com/features/queries#types), for parsing the returned results of the query.
 
 #### `UPDATE`
 `UPDATE(table: String, attributes: Object|Array)`

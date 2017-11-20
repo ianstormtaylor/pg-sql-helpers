@@ -16,10 +16,12 @@ describe('SQL', () => {
   for (const test of tests) {
     it(test, async () => {
       const module = require(resolve(testsDir, test))
-      const { input, name, text, values } = module
+      const { input, name, text, values, rowMode, types } = module
       assert.deepEqual(input.name, name)
       assert.deepEqual(input.text, text)
       assert.deepEqual(input.values, values)
+      assert.deepEqual(input.types, types)
+      assert.deepEqual(input.rowMode, rowMode)
     })
   }
 })

@@ -33,9 +33,7 @@ const query = SQL`
 }
 ```
 
-`pg-sql` turns simple, easy-to-read, interpolated `SQL` template strings into objects that you can pass directly into your PostgreSQL client.
-
-These query objects are supported out of the box by libraries like [`pg`](https://github.com/brianc/node-postgres) and [`pg-promise`](https://github.com/vitaly-t/pg-promise), so that you can interpolate values in a safe way that prevents SQL injection.
+`pg-sql` turns simple, easy-to-read, interpolated `SQL` template strings into injection-safe objects that you can pass directly into clients like [`pg`](https://github.com/brianc/node-postgres) and [`pg-promise`](https://github.com/vitaly-t/pg-promise).
 
 ```js
 await pg.query(SQL`
@@ -45,23 +43,25 @@ await pg.query(SQL`
 `)
 ```
 
-But that's not all. `pg-sql` also includes helpers to make building dynamic SQL statements—which are very common when building APIs—much easier.
-
-For example, `WHERE` clauses with dynamic filters...
+But that's not all. `pg-sql` also includes helpers to make building dynamic SQL statements—which are very common when building APIs—much easier. For example, `WHERE` clauses with dynamic filters...
 
 ```js
+import SQL, { WHERE } from 'pg-sql'
+
 SQL`
   SELECT id, name, age
   FROM users
-  ${SQL.WHERE({ name: 'john', age: { gt: 42 }})}
+  ${WHERE({ name: 'john', age: { gt: 42 }})}
 `
 ```
 
 ...or `INSERT` with dynamic attributes...
 
 ```js
+import SQL, { INSERT } from 'pg-sql'
+
 SQL`
-  ${SQL.INSERT('users', { name: 'jenny', age: 42 })}
+  ${INSERT('users', { name: 'jenny', age: 42 })}
   RETURNING *
 `
 ```
@@ -69,14 +69,16 @@ SQL`
 ...or `ORDER BY` with dynamic columns...
 
 ```js
+import SQL, { ORDER_BY } from 'pg-sql'
+
 SQL`
   SELECT id, name, age
   FROM users
-  ${SQL.ORDER_BY(['name', '-age'])}
+  ${ORDER_BY(['name', '-age'])}
 `
 ```
 
-Not only that, but you can nest statements, to create snippets of SQL that are re-usable, keeping your codebase DRY...
+Not only that, but you can nest statements, to create composable snippets of SQL and keep your codebase DRY...
 
 ```js
 function getUserColumns(full = false) {
@@ -88,40 +90,6 @@ function getUserColumns(full = false) {
 SQL`
   SELECT ${getUserColumns(true)}
   FROM users
-`
-```
-
-You can also import the helpers directly, to make it even more SQL-like...
-
-```js
-import SQL, { UPDATE, WHERE } from 'pg-sql'
-
-SQL`
-  ${UPDATE('users', attributes)}
-  RETURNING *
-  ${WHERE({ id: userId })}
-`
-```
-
-And the helpers are exported in both lower and upper cases, so you can match your existing case preferences for writing SQL...
-
-```js
-import SQL, { WHERE } from 'pg-sql'
-
-SQL`
-  SELECT * 
-  FROM users
-  ${WHERE({ age: { gt: 42 }})}
-`
-```
-
-```js
-import sql, { where } from 'pg-sql'
-
-sql`
-  select * 
-  from users
-  ${where({ age: { gt: 42 }})}
 `
 ```
 
@@ -145,6 +113,20 @@ It lets you continue to use pure, but composable, SQL. And it gives you a handfu
 
 ### API
 
+```js
+import SQL from 'pg-sql'
+
+SQL`
+  SELECT id, name, age
+  FROM users
+  WHERE id = ${'192dadd1-e1d4-486d-81cb-01f43c7518ad'}
+`
+```
+
+Creates a SQL query object from an interpolated SQL string. Any interpolated values will be added to the `values` property of the object, guarding against SQL injection.
+
+In addition, there are a series of helpers exposed:
+
 - [`AND`](#and)
 - [`IDENT`](#ident)
 - [`INSERT`](#insert)
@@ -159,6 +141,48 @@ It lets you continue to use pure, but composable, SQL. And it gives you a handfu
 - [`UPDATE`](#update)
 - [`VALUES`](#values)
 - [`WHERE`](#where)
+
+All of the helpers are available on the `SQL` object directly, if you'd rather not import each helper individually.
+
+```js
+import SQL, { WHERE } from 'pg-sql'
+
+SQL`
+  SELECT * 
+  FROM users
+  ${WHERE({ age: { gt: 42 }})}
+`
+```
+```js
+import SQL from 'pg-sql'
+
+SQL`
+  SELECT * 
+  FROM users
+  ${SQL.WHERE({ age: { gt: 42 }})}
+`
+```
+
+The helpers are available in both lower and upper cases, so you can match your existing case preferences for writing SQL...
+
+```js
+import SQL, { WHERE } from 'pg-sql'
+
+SQL`
+  SELECT * 
+  FROM users
+  ${WHERE({ age: { gt: 42 }})}
+`
+```
+```js
+import sql, { where } from 'pg-sql'
+
+sql`
+  select * 
+  from users
+  ${where({ age: { gt: 42 }})}
+`
+```
 
 #### `AND`
 `AND([ident: String], params: Object)`

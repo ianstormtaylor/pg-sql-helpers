@@ -37,7 +37,7 @@ const query = SQL`
 `pg-sql` turns simple, easy-to-read, interpolated `SQL` template strings into [query config objects](https://node-postgres.com/features/queries#query-config-object) that you can pass directly into clients like [`pg`](https://github.com/brianc/node-postgres) and [`pg-promise`](https://github.com/vitaly-t/pg-promise).
 
 ```js
-await pg.query(SQL`
+const rows = await pg.query(SQL`
   SELECT id, name, age
   FROM users
   WHERE id = ${'192dadd1-e1d4-486d-81cb-01f43c7518ad'}

@@ -34,7 +34,7 @@ const query = SQL`
 }
 ```
 
-`pg-sql` turns simple, easy-to-read, interpolated `SQL` template strings into injection-safe objects that you can pass directly into clients like [`pg`](https://github.com/brianc/node-postgres) and [`pg-promise`](https://github.com/vitaly-t/pg-promise).
+`pg-sql` turns simple, easy-to-read, interpolated `SQL` template strings into [query config objects](https://node-postgres.com/features/queries#query-config-object) that you can pass directly into clients like [`pg`](https://github.com/brianc/node-postgres) and [`pg-promise`](https://github.com/vitaly-t/pg-promise).
 
 ```js
 await pg.query(SQL`
@@ -137,7 +137,7 @@ In addition, there are a series of helpers exposed:
 - [`KEYS`](#keys)
 - [`LIMIT`](#limit)
 - [`LITERAL`](#literal)
-- [`NAMED`](#named)
+- [`PREPARE`](#prepared)
 - [`OFFSET`](#offset)
 - [`OR`](#or)
 - [`ORDER_BY`](#order_by)
@@ -222,7 +222,7 @@ const clauses = users.map(user => SQL`${user.id}`)
 SQL`
   SELECT *
   FROM users
-  WHERE id IN (${JOIN(clauses, ',')})
+  WHERE id IN (${JOIN(clauses, ', ')})
 `
 ```
 
@@ -263,21 +263,21 @@ SQL`
 `
 ```
 
-**⚠️ CAUTION:** This method is not safe! You should not pass dynamic user input to it, because it does not guard against SQL injection.
+> **⚠️ CAUTION:** This method is not safe! You should not pass dynamic user input to it, because it does not guard against SQL injection.
 
-Inserts a literal SQL value in the string, instead of an interpolated one. This can be useful when you need to control certain SQL statements based on pre-defined options, but be careful because it is not safe.
+Inserts a literal SQL value in the string, instead of an interpolated one. This can be useful when you need to control certain SQL statements based on pre-defined options, but be careful because it does not guard against SQL injection.
 
-#### `NAMED`
-`NAMED(name: String)`
+#### `PREPARE`
+`PREPARE(name: String)`
 
 ```js
-SQL.NAMED('get_users')`
+SQL.PREPARE('get_users')`
   SELECT id, name, age
   FROM users
 `
 ```
 
-Create a named SQL query object, instead of the default unnamed. This can be helpful in certain cases where named queries offer better performance.
+Create a [prepared SQL statement](https://node-postgres.com/features/queries#prepared-statements), instead of the default unprepared. This can be helpful in certain cases where prepared statements offer better performance.
 
 #### `OFFSET`
 `OFFSET(number: Number)`

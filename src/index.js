@@ -215,21 +215,6 @@ function LITERAL(string = '') {
 }
 
 /**
- * Create a template tag that will make a named SQL query with `name`.
- *
- * @param {String} name
- * @return {Function}
- */
-
-function NAMED(name) {
-  return (...args) => {
-    const ret = SQL(...args)
-    ret.name = name
-    return ret
-  }
-}
-
-/**
  * Create a literal SQL "OFFSET" string from `number`.
  *
  * @param {Number} number
@@ -293,6 +278,21 @@ function ORDER_BY(ident, params) {
 
   const query = SQL`ORDER BY ${JOIN(values, ', ')}`
   return query
+}
+
+/**
+ * Create a template tag that will make a prepared SQL statement with `name`.
+ *
+ * @param {String} name
+ * @return {Function}
+ */
+
+function PREPARE(name) {
+  return (...args) => {
+    const ret = SQL(...args)
+    ret.name = name
+    return ret
+  }
 }
 
 /**
@@ -432,20 +432,20 @@ function getKeys(object) {
  * Attach the functions to the `SQL` function, for convenience.
  */
 
-const literal = SQL.literal = SQL.LITERAL = LITERAL
-const join = SQL.join = SQL.JOIN = JOIN
-const ident = SQL.ident = SQL.IDENT = IDENT
-const keys = SQL.keys = SQL.KEYS = KEYS
-const values = SQL.values = SQL.VALUES = VALUES
-const insert = SQL.insert = SQL.INSERT = INSERT
-const update = SQL.update = SQL.UPDATE = UPDATE
-const limit = SQL.limit = SQL.LIMIT = LIMIT
-const offset = SQL.offset = SQL.OFFSET = OFFSET
-const orderBy = SQL.orderBy = SQL.ORDER_BY = ORDER_BY
-const where = SQL.where = SQL.WHERE = WHERE
 const and = SQL.and = SQL.AND = AND
+const ident = SQL.ident = SQL.IDENT = IDENT
+const insert = SQL.insert = SQL.INSERT = INSERT
+const join = SQL.join = SQL.JOIN = JOIN
+const keys = SQL.keys = SQL.KEYS = KEYS
+const limit = SQL.limit = SQL.LIMIT = LIMIT
+const literal = SQL.literal = SQL.LITERAL = LITERAL
+const offset = SQL.offset = SQL.OFFSET = OFFSET
 const or = SQL.or = SQL.OR = OR
-const named = SQL.named = SQL.NAMED = NAMED
+const orderBy = SQL.orderBy = SQL.ORDER_BY = ORDER_BY
+const prepare = SQL.prepare = SQL.PREPARE = PREPARE
+const update = SQL.update = SQL.UPDATE = UPDATE
+const values = SQL.values = SQL.VALUES = VALUES
+const where = SQL.where = SQL.WHERE = WHERE
 
 /**
  * Export.
@@ -456,18 +456,18 @@ const named = SQL.named = SQL.NAMED = NAMED
 export default SQL
 
 export {
-  literal, LITERAL,
-  join, JOIN,
-  ident, IDENT,
-  keys, KEYS,
-  values, VALUES,
-  insert, INSERT,
-  update, UPDATE,
-  offset, OFFSET,
-  limit, LIMIT,
-  orderBy, ORDER_BY,
-  where, WHERE,
   and, AND,
+  ident, IDENT,
+  insert, INSERT,
+  join, JOIN,
+  keys, KEYS,
+  limit, LIMIT,
+  literal, LITERAL,
+  offset, OFFSET,
   or, OR,
-  named, NAMED,
+  orderBy, ORDER_BY,
+  prepare, PREPARE,
+  update, UPDATE,
+  values, VALUES,
+  where, WHERE,
 }

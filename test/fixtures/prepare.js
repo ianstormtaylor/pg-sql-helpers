@@ -1,7 +1,7 @@
 
 import SQL from '../..'
 
-export const input = SQL.NAMED('query')`
+export const input = SQL.PREPARE('query')`
   SELECT *
   FROM users
   WHERE id = 1

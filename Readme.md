@@ -269,8 +269,6 @@ SQL`
 
 Inserts a literal SQL value in the string, instead of an interpolated one. This can be useful when you need to control certain SQL statements based on pre-defined options, but be careful because it does not guard against SQL injection.
 
-Create a [prepared SQL statement](https://node-postgres.com/features/queries#prepared-statements), instead of the default unprepared. This can be helpful in certain cases where prepared statements offer better performance.
-
 #### `OFFSET`
 `OFFSET(number: Number)`
 
@@ -320,6 +318,8 @@ SQL.PREPARE('get_users')`
   FROM users
 `
 ```
+
+Create a [prepared SQL statement](https://node-postgres.com/features/queries#prepared-statements), instead of the default unprepared. This can be helpful in certain cases where prepared statements offer better performance.
 
 #### `ROWS`
 `ROWS`

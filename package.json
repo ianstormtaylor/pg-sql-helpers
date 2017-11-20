@@ -21,19 +21,19 @@
     "np": "^2.13.1"
   },
   "keywords": [
-    "code",
-    "combo",
-    "event",
-    "hotkey",
-    "key",
-    "keycode",
-    "keycodes",
-    "keycombo",
-    "keydown",
-    "keyup",
-    "mousetrap",
-    "shortcut",
-    "which"
+    "dynamic",
+    "escape",
+    "interpolate",
+    "orm",
+    "pg",
+    "pgsql",
+    "postgres",
+    "postgresql",
+    "query",
+    "safe",
+    "sql",
+    "string",
+    "template"
   ],
   "dependencies": {
     "is": "^3.2.1",

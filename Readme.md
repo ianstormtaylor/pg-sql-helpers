@@ -8,7 +8,7 @@ A simple, safe way to write powerful SQL queries in Javascript.
 ### Features
 
 - Uses a simple, SQL-like syntax for string interpolation.
-- Compatible with [`pg`]() and [`pg-promise`]() out of the box.
+- Compatible with [`pg`](https://github.com/brianc/node-postgres) and [`pg-promise`](https://github.com/vitaly-t/pg-promise) out of the box.
 - Enables dynamic `WHERE`, `ORDER BY`, `INSERT`, `UPDATE`, ... clauses.
 - Ensures that SQL queries are safe from SQL injection by default.
 - Allows for raw (potentially unsafe!) SQL literal strings when needed.
@@ -17,92 +17,111 @@ A simple, safe way to write powerful SQL queries in Javascript.
 
 ### Example
 
-In the simplest case, `pg-sql` will automatically handle Javascript interpolations in a safe way, constructing a query object...
-
 ```js
 import SQL from 'pg-sql'
 
-const userId = '1'
 const query = SQL`
   SELECT id, name, age
   FROM users
-  WHERE id = ${userId}
+  WHERE id = ${'192dadd1-e1d4-486d-81cb-01f43c7518ad'}
 `
-
-console.log(query)
 ```
 ```
 {
-  text: 'SELECT id, name, age\n  FROM users\n  WHERE id = $1',
-  values: ['1'],
+  text: 'SELECT id, name, age FROM users WHERE id = $1',
+  values: ['192dadd1-e1d4-486d-81cb-01f43c7518ad'],
 }
 ```
 
-These query objects are supported out of the box by libraries like [`pg`]() and [`pg-promise`](), so that you can interpolate values in a safe way that prevents SQL injection.
+`pg-sql` turns simple, easy-to-read, interpolated `SQL` template strings into objects that you can pass directly into your PostgreSQL client.
 
-But `pg-sql` also includes helpers to make dynamic cases, which are common when building APIs, easier.
-
-For example, filtering with `WHERE` clauses...
+These query objects are supported out of the box by libraries like [`pg`](https://github.com/brianc/node-postgres) and [`pg-promise`](https://github.com/vitaly-t/pg-promise), so that you can interpolate values in a safe way that prevents SQL injection.
 
 ```js
 await pg.query(SQL`
+  SELECT id, name, age
+  FROM users
+  WHERE id = ${'192dadd1-e1d4-486d-81cb-01f43c7518ad'}
+`)
+```
+
+But that's not all. `pg-sql` also includes helpers to make building dynamic SQL statements—which are very common when building APIs—much easier.
+
+For example, `WHERE` clauses with dynamic filters...
+
+```js
+SQL`
   SELECT id, name, age
   FROM users
   ${SQL.WHERE({ name: 'john', age: { gt: 42 }})}
-`)
+`
 ```
 
-...or inserting dynamic dictionaries of attributes...
+...or `INSERT` with dynamic attributes...
 
 ```js
-await pg.query(SQL`
+SQL`
   ${SQL.INSERT('users', { name: 'jenny', age: 42 })}
   RETURNING *
-`)
+`
 ```
 
-...or ordering by a dynamic set of parameters...
+...or `ORDER BY` with dynamic columns...
 
 ```js
-await pg.query(SQL`
+SQL`
   SELECT id, name, age
   FROM users
   ${SQL.ORDER_BY(['name', '-age'])}
-`)
+`
+```
+
+Not only that, but you can nest statements, to create snippets of SQL that are re-usable, keeping your codebase DRY...
+
+```js
+function getUserColumns(full = false) {
+  return full
+    ? SQL`id, name, email, age, created_at, updated_at`
+    : SQL`id, name, email`
+}
+
+SQL`
+  SELECT ${getUserColumns(true)}
+  FROM users
+`
 ```
 
 You can also import the helpers directly, to make it even more SQL-like...
 
 ```js
-import SQL, { UPDATE, WHERE, ORDER_BY } from 'pg-sql'
+import SQL, { UPDATE, WHERE } from 'pg-sql'
 
-function updateUser(userId, attributes) {
-  return await pg.query(SQL`
-    WITH updated_users AS (
-      ${UPDATE('users', attributes)}
-      RETURNING *
-      ${WHERE({ id: userId })}
-    )
-    SELECT id, name, age
-    FROM updated_users
-    ${ORDER_BY(['name', '-age'])}
-  `)
-}
+SQL`
+  ${UPDATE('users', attributes)}
+  RETURNING *
+  ${WHERE({ id: userId })}
+`
 ```
 
 And the helpers are exported in both lower and upper cases, so you can match your existing case preferences for writing SQL...
 
 ```js
-import SQL, { UPDATE, update } from 'pg-sql'
+import SQL, { WHERE } from 'pg-sql'
 
 SQL`
-  ${UPDATE('users', attributes)}
-  RETURNING *
+  SELECT * 
+  FROM users
+  ${WHERE({ age: { gt: 42 }})}
 `
+```
 
-SQL`
-  ${update('users', attributes)}
-  returning *
+```js
+import sql, { where } from 'pg-sql'
+
+sql`
+  select * 
+  from users
+  ${where({ age: { gt: 42 }})}
 `
 ```
 
@@ -111,6 +130,8 @@ That's it!
 ---
 
 ### Why?
+
+If you choose not to use an ORM to write your SQL queries, you gain a lot of flexibility, but you lose some of the interoperability.
 
 There are tons of hotkey libraries, but they're often coupled to the view layer, or they bind events globally, or all kinds of weird things. You don't really want them to bind the events for you, you can do that yourself. 
 

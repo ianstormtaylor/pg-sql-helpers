@@ -131,15 +131,15 @@ That's it!
 
 ### Why?
 
-If you choose not to use an ORM to write your SQL queries, you gain a lot of flexibility, but you lose some of the interoperability.
+Choosing not to use an ORM in Node.js is a very common and reasonable choice, because SQL is very powerful and readable on its own. But one of the biggest downsides is that you lose some of the expressiveness when dynamic SQL statements are concerned.
 
-There are tons of hotkey libraries, but they're often coupled to the view layer, or they bind events globally, or all kinds of weird things. You don't really want them to bind the events for you, you can do that yourself. 
+There are libraries that try to solve this, but most of them re-invent the entire SQL syntax, porting it to functional Javascript methods—some even require defining your schema in advance. You're basically back to re-inventing an ORM but without any of the benefits.
 
-Instead, you want to just check whether a single event matches a hotkey. And you want to define your hotkeys in the standard-but-non-trivial-to-parse syntax that everyone knows.
+What you really want is to write pure SQL, but be able to interpolate values directly into the strings, and be able to use a few helpers to create queries from dynamic, user-provided values without lots of headache.
 
-But most libraries don't expose their parsing logic. And even for the ones that do expose their hotkey parsing logic, pulling in an entire library just to check a hotkey string is overkill.
+That's what `pg-sql` is.
 
-So... this is a simple and lightweight hotkey checker!
+It lets you continue to use pure, but composable, SQL. And it gives you a handful of helper functions to make building dynamic queries much easier.
 
 ---
 

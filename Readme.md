@@ -1,7 +1,7 @@
 
 # pg-sql
 
-A simple, safe way to write powerful SQL queries in Javascript.
+A simple, safe and composable way to write SQL queries in Javascript.
 
 ---
 

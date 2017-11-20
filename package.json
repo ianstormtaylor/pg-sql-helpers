@@ -1,6 +1,6 @@
 {
   "name": "pg-sql",
-  "description": "A simple, safe way to write powerful SQL queries in Javascript.",
+  "description": "A simple, safe and composable way to write SQL queries in Javascript.",
   "version": "0.0.0",
   "license": "MIT",
   "repository": "git://github.com/ianstormtaylor/pg-sql.git",

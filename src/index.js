@@ -206,6 +206,10 @@ function WHERE(ident, params, options = {}) {
     ident = ''
   }
 
+  if (params == null) {
+    return sql``
+  }
+
   function handle(keys, obj) {
     const key = keys[keys.length - 1]
     let value = obj[key]

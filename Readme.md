@@ -64,11 +64,11 @@ So that when building APIs that allow dynamic user input (eg. inserts, updates, 
 
 ### Why?
 
-Choosing not to use an ORM is a very common and reasonable choice. But one of the biggest downsides is that you lose some of the expressiveness when dynamic SQL statements are concerned. For example when you need to allow for...
+Choosing not to use an ORM is a very common and reasonable choice. But one of the biggest downsides is that you lose some of the expressiveness when dynamic SQL statements are concerned. For example when you need to...
 
-- ...inserting or updating from a handful of different attributes.
-- ...filtering by custom parameters.
-- ...ordering and paginating with custom parameters.
+- ...insert or update from a handful of different attributes.
+- ...filter by custom parameters.
+- ...limit, order and paginate with custom parameters.
 
 Building SQL strings by hand for these dynamic inputs is tedious.
 

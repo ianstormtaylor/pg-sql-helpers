@@ -110,7 +110,7 @@ sql`
 The same as the [`WHERE`](#where) helper, but the keyword will be `AND` instead. Useful when you've already got a hardcoded `WHERE` you need to augment. The `table` string is optional, but can be passed to qualify the columns to match.
 
 #### `INSERT`
-`INSERT(table: String, values: Object|Array)`
+`INSERT(table: String, values: Object|Array<Object>)`
 
 ```js
 sql`
@@ -120,10 +120,12 @@ sql`
 `
 ```
 
-Create a SQL "INSERT" clause from a set of `values`. Useful when writing dynamic updates based on attributes that may or may not be passed.
+Create a SQL "INSERT" clause from a set of `values`. Useful when writing dynamic updates based on attributes that may or may not be passed. 
+
+_In the case of an array of `values`, the keys from the first object in the array will be used._
 
 #### `KEYS`
-`KEYS(values: Object|Array)`
+`KEYS(values: Object|Array<Object>)`
 
 ```js
 sql`
@@ -132,7 +134,9 @@ sql`
 `
 ```
 
-Extract and join the keys of `values` into a SQL string. Useful for building dynamic clauses like `SELECT`, `INSERT`, `UPDATE`, etc.
+Extract and join the keys of `values` into a SQL string. Useful for building dynamic clauses like `SELECT`, [`INSERT`](#insert), [`UPDATE`](#update), etc. 
+
+_In the case of an array of `values`, the keys from the first object in the array will be used._
 
 #### `LIMIT`
 `LIMIT(number: Number)`
@@ -145,7 +149,7 @@ sql`
 `
 ```
 
-Safely create a literal SQL "LIMIT" clause from a dynamic `number`. Passing a non-number value will throw an error.
+Create a SQL "LIMIT" clause from a dynamic `number`. In the number is `Infinity`, `LIMIT ALL` will be output instead.
 
 #### `OFFSET`
 `OFFSET(number: Number)`
@@ -158,7 +162,7 @@ sql`
 `
 ```
 
-Safely create a literal SQL "OFFSET" clause from a dynamic `number`. Passing a non-number value will throw an error.
+Create a SQL "OFFSET" clause from a dynamic `number`.
 
 #### `OR`
 `OR([table: String], params: Object)`
@@ -188,7 +192,7 @@ sql`
 Create a SQL "ORDER BY" clause from an array of `params`. The params are column name identifiers. They default to `ASC NULLS LAST`, but can be prefixed with `'-'` to denote `DESC NULLS LAST`.
 
 #### `UPDATE`
-`UPDATE(table: String, values: Object|Array)`
+`UPDATE(table: String, values: Object|Array<Object>)`
 
 ```js
 sql`
@@ -198,10 +202,12 @@ sql`
 `
 ```
 
-Create a SQL "UPDATE" clause from a set of `values`. Useful when writing dynamic updates based on attributes that may or may not be passed.
+Create a SQL "UPDATE" clause from a set of `values`. Useful when writing dynamic updates based on attributes that may or may not be passed. 
+
+_In the case of an array of `values`, the keys from the first object in the array will be used._
 
 #### `VALUES`
-`VALUES(values: Object|Array)`
+`VALUES(values: Object|Array<Object>)`
 
 ```js
 sql`
@@ -210,7 +216,7 @@ sql`
 `
 ```
 
-Extract and join the values of `values` into a SQL string. Useful for building dynamic clauses like `INSERT`, `UPDATE`, etc.
+Extract and join the values of `values` into a SQL string. Useful for building dynamic clauses like [`INSERT`](#insert), [`UPDATE`](#update), etc.
 
 #### `WHERE`
 `WHERE([table: String], params: Object)`

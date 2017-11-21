@@ -1,6 +1,6 @@
 {
   "name": "pg-sql-helpers",
-  "description": "A set helpers for writing dynamic SQL queries in Javascript.",
+  "description": "A set helpers for writing dynamic SQL queries with `pg-sql` in Javascript.",
   "version": "0.0.0",
   "license": "MIT",
   "repository": "git://github.com/ianstormtaylor/pg-sql-helpers.git",

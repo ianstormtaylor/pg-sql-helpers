@@ -1,7 +1,7 @@
 
 # pg-sql-helpers
 
-A set helpers for writing dynamic SQL queries in Javascript.
+A set helpers for writing dynamic SQL queries with [`pg-sql`](https://github.com/calebmer/pg-sql) in Javascript.
 
 ---
 

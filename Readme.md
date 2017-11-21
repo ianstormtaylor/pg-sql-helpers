@@ -122,9 +122,7 @@ sql`
 `
 ```
 
-Create a SQL "INSERT" clause from a set of `values`. Useful when writing dynamic updates based on attributes that may or may not be passed. 
-
-_In the case of an array of `values`, the keys from the first object in the array will be used._
+Create a SQL "INSERT" clause from a set of `values`. Useful when writing dynamic updates based on attributes that may or may not be passed. _In the case of an array of `values`, the keys from the first object in the array will be used._
 
 #### `KEYS`
 `KEYS(values: Object|Array<Object>)`
@@ -136,9 +134,7 @@ sql`
 `
 ```
 
-Extract and join the keys of `values` into a SQL string. Useful for building dynamic clauses like `SELECT`, [`INSERT`](#insert), [`UPDATE`](#update), etc. 
-
-_In the case of an array of `values`, the keys from the first object in the array will be used._
+Extract and join the keys of `values` into a SQL string. Useful for building dynamic clauses like `SELECT`, [`INSERT`](#insert), [`UPDATE`](#update), etc. _In the case of an array of `values`, the keys from the first object in the array will be used._
 
 #### `LIMIT`
 `LIMIT(number: Number)`
@@ -204,9 +200,7 @@ sql`
 `
 ```
 
-Create a SQL "UPDATE" clause from a set of `values`. Useful when writing dynamic updates based on attributes that may or may not be passed. 
-
-_In the case of an array of `values`, the keys from the first object in the array will be used._
+Create a SQL "UPDATE" clause from a set of `values`. Useful when writing dynamic updates based on attributes that may or may not be passed. _In the case of an array of `values`, the keys from the first object in the array will be used._
 
 #### `VALUES`
 `VALUES(values: Object|Array<Object>)`

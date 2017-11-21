@@ -2230,6 +2230,16 @@ performance-now@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-0.2.0.tgz#33ef30c5c77d4ea21c5a53869d91b56d8f2555e5"
 
+pg-minify@^0.4.1:
+  version "0.4.5"
+  resolved "https://registry.yarnpkg.com/pg-minify/-/pg-minify-0.4.5.tgz#d3e92fb690f9283b8a37866e4566fce9fed26150"
+
+pg-sql@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/pg-sql/-/pg-sql-1.1.0.tgz#1271608aff8b1ecd87b4f63f413184d9fc345703"
+  dependencies:
+    pg-minify "^0.4.1"
+
 pify@^2.0.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/pify/-/pify-2.3.0.tgz#ed141a6ac043a849ea588498e7dca8b15330e90c"

@@ -1,20 +1,15 @@
 
-import SQL from '../..'
+import { sql } from 'pg-sql'
+import { AND } from '../..'
 
-export const input = SQL`
+export const input = sql`
   SELECT *
   FROM users
   WHERE id = 1
-  ${SQL.AND({ name: 'john' })}
+  ${AND({ name: 'john' })}
 `
 
-export const text = `
-  SELECT *
-  FROM users
-  WHERE id = 1
-  AND name = $1
-`
-
-export const values = [
-  'john',
-]
+export const output = {
+  text: `SELECT * FROM users WHERE id = 1 AND "name" = $1`,
+  values: ['john'],
+}

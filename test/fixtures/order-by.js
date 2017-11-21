@@ -1,16 +1,14 @@
 
-import SQL from '../..'
+import { sql } from 'pg-sql'
+import { ORDER_BY } from '../..'
 
-export const input = SQL`
+export const input = sql`
   SELECT *
   FROM users
-  ${SQL.ORDER_BY(['name', '-age'])}
+  ${ORDER_BY(['name', '-age'])}
 `
 
-export const text = `
-  SELECT *
-  FROM users
-  ORDER BY name ASC NULLS LAST, age DESC NULLS LAST
-`
-
-export const values = []
+export const output = {
+  text: `SELECT * FROM users ORDER BY "name" ASC NULLS LAST, "age" DESC NULLS LAST`,
+  values: [],
+}

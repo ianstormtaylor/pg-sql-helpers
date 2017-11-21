@@ -1,16 +1,14 @@
 
-import SQL from '../..'
+import { sql } from 'pg-sql'
+import { LIMIT } from '../..'
 
-export const input = SQL`
+export const input = sql`
   SELECT *
   FROM users
-  ${SQL.LIMIT(5)}
+  ${LIMIT(5)}
 `
 
-export const text = `
-  SELECT *
-  FROM users
-  LIMIT 5
-`
-
-export const values = []
+export const output = {
+  text: `SELECT * FROM users LIMIT $1`,
+  values: [5],
+}

@@ -1,16 +1,14 @@
 
-import SQL from '../..'
+import { sql } from 'pg-sql'
+import { OFFSET } from '../..'
 
-export const input = SQL`
+export const input = sql`
   SELECT *
   FROM users
-  ${SQL.OFFSET(0)}
+  ${OFFSET(0)}
 `
 
-export const text = `
-  SELECT *
-  FROM users
-  OFFSET 0
-`
-
-export const values = []
+export const output = {
+  text: `SELECT * FROM users OFFSET $1`,
+  values: [0],
+}

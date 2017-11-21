@@ -1,18 +1,14 @@
 
-import SQL from '../..'
+import { sql } from 'pg-sql'
+import { WHERE } from '../..'
 
-export const input = SQL`
+export const input = sql`
   SELECT *
   FROM users
-  ${SQL.WHERE({ age: { lt: 42 }})}
+  ${WHERE({ age: { lt: 42 }})}
 `
 
-export const text = `
-  SELECT *
-  FROM users
-  WHERE age < $1
-`
-
-export const values = [
-  42,
-]
+export const output = {
+  text: `SELECT * FROM users WHERE "age" < $1`,
+  values: [42],
+}

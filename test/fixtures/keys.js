@@ -1,14 +1,13 @@
 
-import SQL from '../..'
+import { sql } from 'pg-sql'
+import { KEYS } from '../..'
 
-export const input = SQL`
-  SELECT ${SQL.KEYS({ id: true, name: true })}
+export const input = sql`
+  SELECT ${KEYS({ id: true, name: true })}
   FROM users
 `
 
-export const text = `
-  SELECT id, name
-  FROM users
-`
-
-export const values = []
+export const output = {
+  text: `SELECT "id", "name" FROM users`,
+  values: [],
+}

@@ -3,6 +3,8 @@
 
 A set helpers for writing dynamic SQL queries with [`pg-sql`](https://github.com/calebmer/pg-sql) in Javascript.
 
+_It's sort of like a [`lodash`](https://lodash.com/) or [`polished`](https://polished.js.org/) for writing SQL._
+
 ---
 
 ### Features

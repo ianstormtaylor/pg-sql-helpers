@@ -56,7 +56,7 @@ const result = await pg.query(sql`
 `)
 ```
 
-So that when building APIs or database services that allow for dynamic user input (eg. inserts, updates, filters, pagination, etc.) you can write powerful queries without concatenating strings or doing other hard-to-maintain things.
+So that when building APIs that allow dynamic user input (eg. inserts, updates, filters, sorting, pagination, etc.) you can write powerful queries without concatenating strings or doing other confusing things.
 
 ---
 

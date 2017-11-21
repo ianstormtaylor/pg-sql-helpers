@@ -40,11 +40,6 @@ function AND(ident, params, options = {}) {
  */
 
 function INSERT(table, values) {
-  if (is.object(table)) {
-    values = table
-    table = ''
-  }
-
   const query = sql`INSERT INTO ${sql.ident(table)} (${KEYS(values)}) VALUES (${VALUES(values)})`
   return query
 }
@@ -153,12 +148,18 @@ function ORDER_BY(ident, params) {
  * Create a SQL "update" list of columns and values.
  *
  * @param {String} table
- * @param {Object|Array} value
+ * @param {Object|Array} values
  * @return {Object}
  */
 
-function UPDATE(table, value) {
-  const query = sql`UPDATE ${sql.ident(table)} SET (${KEYS(value)}) = (${VALUES(value)})`
+function UPDATE(table, values) {
+  if (is.object(table)) {
+    values = table
+    table = null
+  }
+
+  const id = table ? sql`${sql.ident(table)}` : sql``
+  const query = sql`UPDATE ${id} SET (${KEYS(values)}) = (${VALUES(values)})`
   return query
 }
 

@@ -32,20 +32,20 @@ function AND(ident, params, options = {}) {
 }
 
 /**
- * Create a SQL "insert" list of columns and values.
+ * Create a SQL "INSERT" statement from a dictionary or list of `values`.
  *
- * @param {String} ident
+ * @param {String} table
  * @param {Object|Array} value
  * @return {Object}
  */
 
-function INSERT(ident, value) {
-  if (is.object(ident)) {
-    value = ident
-    ident = ''
+function INSERT(table, values) {
+  if (is.object(table)) {
+    values = table
+    table = ''
   }
 
-  const query = sql`INSERT INTO ${sql.ident(ident)} (${KEYS(value)}) VALUES (${VALUES(value)})`
+  const query = sql`INSERT INTO ${sql.ident(table)} (${KEYS(values)}) VALUES (${VALUES(values)})`
   return query
 }
 

@@ -1,186 +1,109 @@
 
-# pg-sql
+# pg-sql-helpers
 
-A simple, safe and composable way to write SQL queries in Javascript.
+A set helpers for writing dynamic SQL queries in Javascript.
 
 ---
 
 ### Features
 
-- Uses a simple, SQL-like syntax for string interpolation.
-- Compatible with [`pg`](https://github.com/brianc/node-postgres) and [`pg-promise`](https://github.com/vitaly-t/pg-promise) out of the box.
-- Enables dynamic `WHERE`, `ORDER BY`, `INSERT`, `UPDATE`, ... clauses.
-- Ensures that SQL queries are safe from SQL injection by default.
-- Allows for raw (potentially unsafe!) SQL literal strings when needed.
+- Uses a simple, SQL-like syntax for building queries.
+- Enables dynamic `WHERE`, `ORDER BY`, `INSERT`, `UPDATE`, &hellip; clauses.
+- Built on top of [`pg-sql`](https://github.com/calebmer/pg-sql) for writing simple SQL strings in Javascript.
+- Compatible with [`pg`](https://github.com/brianc/node-postgres) out of the box.
 
 ---
 
 ### Example
 
-```js
-import SQL from 'pg-sql'
-
-const query = SQL`
-  SELECT id, name, age
-  FROM users
-  WHERE id = ${'192dadd1-e1d4-486d-81cb-01f43c7518ad'}
-  AND age > ${42}
-`
-```
-```
-{
-  text: 'SELECT id, name, age FROM users WHERE id = $1 AND age > $2',
-  values: ['192dadd1-e1d4-486d-81cb-01f43c7518ad', 42],
-}
-```
-
-`pg-sql` turns simple, easy-to-read, interpolated `SQL` template strings into [query config objects](https://node-postgres.com/features/queries#query-config-object) that you can pass directly into clients like [`pg`](https://github.com/brianc/node-postgres) and [`pg-promise`](https://github.com/vitaly-t/pg-promise).
+Out of the box, [`pg-sql`](https://github.com/calebmer/pg-sql) lets you write SQL just like you're used to:
 
 ```js
-const rows = await pg.query(SQL`
+import { sql } from 'pg-sql'
+
+const name = 'john'
+const result = await pg.query(sql`
   SELECT id, name, age
   FROM users
-  WHERE id = ${'192dadd1-e1d4-486d-81cb-01f43c7518ad'}
-  AND age > ${42}
+  WHERE name = ${name}
 `)
 ```
 
-But that's not all. `pg-sql` also includes helpers to make building dynamic SQL statements—which are very common when building APIs—much easier. For example, `WHERE` clauses with dynamic filters...
+With `pg-sql-helpers` you can use the same SQL-like syntax when writing queries with dynamic clauses, like:
 
 ```js
-import SQL, { WHERE } from 'pg-sql'
+import { sql } from 'pg-sql'
+import { INSERT, ORDER_BY, WHERE } from 'pg-sql-helpers'
 
-SQL`
+const filter = { name: 'john', age: { gt: 42 }}
+const result = await pg.query(sql`
   SELECT id, name, age
   FROM users
-  ${WHERE({ name: 'john', age: { gt: 42 }})}
-`
-```
+  ${WHERE(filter)}
+`)
 
-...or `INSERT` with dynamic attributes...
-
-```js
-import SQL, { INSERT } from 'pg-sql'
-
-SQL`
-  ${INSERT('users', { name: 'jenny', age: 42 })}
+const attrs = { name: 'jane', age: 42 }
+const result = await pg.query(sql`
+  ${INSERT('users', attrs)}
   RETURNING *
-`
-```
+`)
 
-...or `ORDER BY` with dynamic columns...
-
-```js
-import SQL, { ORDER_BY } from 'pg-sql'
-
-SQL`
+const sort = ['name', '-age']
+const result = await pg.query(sql`
   SELECT id, name, age
   FROM users
-  ${ORDER_BY(['name', '-age'])}
-`
+  ${ORDER_BY(sort)}
+`)
 ```
 
-Not only that, but you can nest statements, to create composable snippets of SQL and keep your codebase DRY...
-
-```js
-function getUserColumns(full = false) {
-  return full
-    ? SQL`id, name, email, age, created_at, updated_at`
-    : SQL`id, name, email`
-}
-
-SQL`
-  SELECT ${getUserColumns(true)}
-  FROM users
-`
-```
-
-That's it!
+So that when you're building APIs or database services that allow for dynamic user input (eg. inserts, updates, filters, pagination, etc.) you can build powerful queries without having to concatenate strings or do other hard-to-maintain things.
 
 ---
 
 ### Why?
 
-Choosing not to use an ORM in Node.js is a very common and reasonable choice, because SQL is very powerful and readable on its own. But one of the biggest downsides is that you lose some of the expressiveness when dynamic SQL statements are concerned.
+Choosing not to use an ORM in Node.js is a very common and reasonable choice, because SQL is very powerful and readable on its own. But one of the biggest downsides is that you lose some of the expressiveness when dynamic SQL statements are concerned. For example when you need to allow for...
 
-There are libraries that try to solve this, but most of them re-invent the entire SQL syntax, porting it to functional Javascript methods—some even require defining your schema in advance. You're basically back to re-inventing an ORM but without any of the benefits.
+- ...inserting or updating from a handful of different attributes.
+- ...accepting custom filtering parameters.
+- ...accepting custom ordering or pagination parameters.
 
-What you really want is to write pure SQL, but be able to interpolate values directly into the strings, and be able to use a few helpers to create queries from dynamic, user-provided values without lots of headache.
+Building SQL strings by hand for these dynamic inputs is tedious.
 
-That's what `pg-sql` is.
+There are libraries that try to solve this, but most of them re-invent the entire SQL syntax with Javascript methods—some even require defining your schema in advance. You're basically back to re-inventing an ORM but without any of the benefits.
 
-It lets you continue to use pure, but composable, SQL. And it gives you a handful of helper functions to make building dynamic queries much easier.
+What you really want is to write (almost) pure SQL, but to be able to use a few helpers to create queries from dynamic, user-provided values without lots of headache.
+
+That's what `pg-sql-helpers` lets you do.
+
+It lets you continue to write simple, composable SQL strings with the help of [`pg-sql`](https://github.com/calebmer/pg-sql), while giving you a handful of helper functions to make building dynamic queries much, much easier.
 
 ---
 
 ### API
 
-```js
-import SQL from 'pg-sql'
-
-SQL`
-  SELECT id, name, age
-  FROM users
-  WHERE id = ${'192dadd1-e1d4-486d-81cb-01f43c7518ad'}
-  AND age > ${42}
-`
-```
-
-Creates a SQL query object from an interpolated SQL string. Any interpolated values will be added to the `values` property of the object, guarding against SQL injection.
-
-In addition, there are a series of helpers exposed:
-
 - [`AND`](#and)
-- [`IDENT`](#ident)
 - [`INSERT`](#insert)
-- [`JOIN`](#join)
 - [`KEYS`](#keys)
 - [`LIMIT`](#limit)
-- [`LITERAL`](#literal)
 - [`OFFSET`](#offset)
 - [`OR`](#or)
 - [`ORDER_BY`](#order_by)
-- [`PREPARE`](#prepared)
-- [`ROWS`](#rows)
-- [`TYPES`](#types)
 - [`UPDATE`](#update)
 - [`VALUES`](#values)
 - [`WHERE`](#where)
 
-All of the helpers are available on the `SQL` object directly, if you'd rather not import each helper individually.
-
-```js
-import SQL, { WHERE } from 'pg-sql'
-
-SQL`
-  SELECT * 
-  FROM users
-  ${WHERE({ age: { gt: 42 }})}
-`
-```
-```js
-import SQL from 'pg-sql'
-
-SQL`
-  SELECT * 
-  FROM users
-  ${SQL.WHERE({ age: { gt: 42 }})}
-`
-```
-
 The helpers are available in both lower and upper cases, so you can match your existing case preferences for writing SQL...
 
 ```js
-import SQL, { WHERE } from 'pg-sql'
+import { sql } from 'pg-sql'
+import { WHERE, where } from 'pg-sql-helpers'
 
-SQL`
+sql`
   SELECT * 
   FROM users
   ${WHERE({ age: { gt: 42 }})}
 `
-```
-```js
-import sql, { where } from 'pg-sql'
 
 sql`
   select * 
@@ -193,7 +116,7 @@ sql`
 `AND([table: String], params: Object)`
 
 ```js
-SQL`
+sql`
   SELECT *
   FROM users
   WHERE name = 'John'
@@ -203,50 +126,36 @@ SQL`
 
 The same as the [`WHERE`](#where) helper, but the keyword will be `AND` instead. Useful when you've already got a hardcoded `WHERE` you need to augment. The `table` string is optional, but can be passed to qualify the columns to match.
 
-#### `IDENT`
-`IDENT(string: String)`
+#### `INSERT`
+`INSERT(table: String, values: Object|Array)`
 
 ```js
-SQL`
-  SELECT *
-  FROM ${IDENT('users')}
+sql`
+  ${INSERT('users', { name: 'john', age: 42 })}
+  WHERE id = '1'
+  RETURNING *
 `
 ```
 
-Outputs a `string` as an escaped SQL identifier. Useful when you need an identifier to be dynamic, because without using `IDENT` it will be treated as an interpolated value.
-
-#### `JOIN`
-`JOIN(clauses: Array, [delimiter: String])`
-
-```js
-const clauses = users.map(user => SQL`${user.id}`)
-
-SQL`
-  SELECT *
-  FROM users
-  WHERE id IN (${JOIN(clauses, ', ')})
-`
-```
-
-Joins multiple SQL `clauses` into one, with a `delimiter`. The `delimiter` defaults to `','`.
+Create a SQL "INSERT" clause from a set of `values`. Useful when writing dynamic updates based on attributes that may or may not be passed.
 
 #### `KEYS`
-`KEYS(attributes: Object|Array)`
+`KEYS(values: Object|Array)`
 
 ```js
-SQL`
+sql`
   SELECT ${KEYS({ name: true, age: true })}
   FROM users
 `
 ```
 
-Extract and join the keys of `attributes` into a SQL string. Useful for building dynamic clauses like `SELECT`, `INSERT`, `UPDATE`, etc.
+Extract and join the keys of `values` into a SQL string. Useful for building dynamic clauses like `SELECT`, `INSERT`, `UPDATE`, etc.
 
 #### `LIMIT`
 `LIMIT(number: Number)`
 
 ```js
-SQL`
+sql`
   SELECT id, name, age
   FROM users
   ${LIMIT(20)}
@@ -255,25 +164,11 @@ SQL`
 
 Safely create a literal SQL "LIMIT" clause from a dynamic `number`. Passing a non-number value will throw an error.
 
-#### `LITERAL`
-`LITERAL(string: String)`
-
-```js
-SQL`
-  SELECT id, ${LITERAL(options.full ? 'first | \' \' | last', 'first, last')}
-  FROM users
-`
-```
-
-> **⚠️ CAUTION:** This method is not safe! You should not pass dynamic user input to it, because it does not guard against SQL injection.
-
-Inserts a literal SQL value in the string, instead of an interpolated one. This can be useful when you need to control certain SQL statements based on pre-defined options, but be careful because it does not guard against SQL injection.
-
 #### `OFFSET`
 `OFFSET(number: Number)`
 
 ```js
-SQL`
+sql`
   SELECT id, name, age
   FROM users
   LIMIT 10 ${OFFSET(20)}
@@ -286,7 +181,7 @@ Safely create a literal SQL "OFFSET" clause from a dynamic `number`. Passing a n
 `OR([table: String], params: Object)`
 
 ```js
-SQL`
+sql`
   SELECT *
   FROM users
   WHERE name = 'John'
@@ -300,7 +195,7 @@ The same as the [`WHERE`](#where) helper, but the keyword will be `OR` instead. 
 `ORDER_BY([table: String], params: Array)`
 
 ```js
-SQL`
+sql`
   SELECT *
   FROM users
   ${ORDER_BY(['name', '-age'])}
@@ -309,74 +204,36 @@ SQL`
 
 Create a SQL "ORDER BY" clause from an array of `params`. The params are column name identifiers. They default to `ASC NULLS LAST`, but can be prefixed with `'-'` to denote `DESC NULLS LAST`.
 
-#### `PREPARE`
-`PREPARE(name: String)`
-
-```js
-SQL.PREPARE('get_users')`
-  SELECT id, name, age
-  FROM users
-`
-```
-
-Create a [prepared SQL statement](https://node-postgres.com/features/queries#prepared-statements), instead of the default unprepared. This can be helpful in certain cases where prepared statements offer better performance.
-
-#### `ROWS`
-`ROWS`
-
-```js
-SQL.ROWS`
-  SELECT * 
-  FROM users
-`
-```
-
-Create a SQL query object with the [`rowMode: 'array'` option](https://node-postgres.com/features/queries#row-mode) enabled, returning the results as arrays of values instead of JSON objects.
-
-#### `TYPES`
-`TYPES(types: Object)`
-
-```js
-SQL.TYPES({
-  getTypeParser: () => (val) => val
-})`
-  SELECT * 
-  FROM users
-`
-```
-
-Create a SQL query with a [custom set of `types` parsers](https://node-postgres.com/features/queries#types), for parsing the returned results of the query.
-
 #### `UPDATE`
-`UPDATE(table: String, attributes: Object|Array)`
+`UPDATE(table: String, values: Object|Array)`
 
 ```js
-SQL`
+sql`
   ${UPDATE('users', { name: 'john', age: 42 })}
   WHERE id = '1'
   RETURNING *
 `
 ```
 
-Create a SQL "UPDATE" clause from a set of `attributes`. Useful when writing dynamic updates based on attributes that may or may not be passed.
+Create a SQL "UPDATE" clause from a set of `values`. Useful when writing dynamic updates based on attributes that may or may not be passed.
 
 #### `VALUES`
-`VALUES(attributes: Object|Array)`
+`VALUES(values: Object|Array)`
 
 ```js
-SQL`
+sql`
   UPDATE users
   SET (name, age) = (${VALUES({ name: 'john', age: 42 })})
 `
 ```
 
-Extract and join the values of `attributes` into a SQL string. Useful for building dynamic clauses like `INSERT`, `UPDATE`, etc.
+Extract and join the values of `values` into a SQL string. Useful for building dynamic clauses like `INSERT`, `UPDATE`, etc.
 
 #### `WHERE`
 `WHERE([table: String], params: Object)`
 
 ```js
-SQL`
+sql`
   SELECT * 
   FROM users
   ${WHERE({ age: { gte: 42 }})}

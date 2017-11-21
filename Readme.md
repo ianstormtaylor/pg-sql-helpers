@@ -56,7 +56,7 @@ const result = await pg.query(sql`
 `)
 ```
 
-So that when you're building APIs or database services that allow for dynamic user input (eg. inserts, updates, filters, pagination, etc.) you can build powerful queries without having to concatenate strings or do other hard-to-maintain things.
+So that when building APIs or database services that allow for dynamic user input (eg. inserts, updates, filters, pagination, etc.) you can write powerful queries without concatenating strings or doing other hard-to-maintain things.
 
 ---
 
@@ -82,6 +82,8 @@ It lets you continue to write simple, composable SQL strings with the help of [`
 
 ### API
 
+All of the helpers are exported in lowercase _and_ uppercase, so you can match your existing SQL preferences.
+
 - [`AND`](#and)
 - [`INSERT`](#insert)
 - [`KEYS`](#keys)
@@ -92,25 +94,6 @@ It lets you continue to write simple, composable SQL strings with the help of [`
 - [`UPDATE`](#update)
 - [`VALUES`](#values)
 - [`WHERE`](#where)
-
-The helpers are available in both lower and upper cases, so you can match your existing case preferences for writing SQL...
-
-```js
-import { sql } from 'pg-sql'
-import { WHERE, where } from 'pg-sql-helpers'
-
-sql`
-  SELECT * 
-  FROM users
-  ${WHERE({ age: { gt: 42 }})}
-`
-
-sql`
-  select * 
-  from users
-  ${where({ age: { gt: 42 }})}
-`
-```
 
 #### `AND`
 `AND([table: String], params: Object)`

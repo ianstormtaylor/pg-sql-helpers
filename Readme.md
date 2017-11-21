@@ -64,21 +64,17 @@ So that when building APIs that allow dynamic user input (eg. inserts, updates, 
 
 ### Why?
 
-Choosing not to use an ORM in Node.js is a very common and reasonable choice, because SQL is very powerful and readable on its own. But one of the biggest downsides is that you lose some of the expressiveness when dynamic SQL statements are concerned. For example when you need to allow for...
+Choosing not to use an ORM is a very common and reasonable choice. But one of the biggest downsides is that you lose some of the expressiveness when dynamic SQL statements are concerned. For example when you need to allow for...
 
 - ...inserting or updating from a handful of different attributes.
-- ...accepting custom filtering parameters.
-- ...accepting custom ordering or pagination parameters.
+- ...filtering by custom parameters.
+- ...ordering and paginating with custom parameters.
 
 Building SQL strings by hand for these dynamic inputs is tedious.
 
 There are libraries that try to solve this, but most of them re-invent the entire SQL syntax with Javascript methods—some even require defining your schema in advance. You're basically back to re-inventing an ORM but without any of the benefits.
 
-What you really want is to write (almost) pure SQL, but to be able to use a few helpers to create queries from dynamic, user-provided values without lots of headache.
-
-That's what `pg-sql-helpers` lets you do.
-
-It lets you continue to write simple, composable SQL strings with the help of [`pg-sql`](https://github.com/calebmer/pg-sql), while giving you a handful of helper functions to make building dynamic queries much, much easier.
+`pg-sql-helpers` lets you continue to write simple, composable SQL strings with the help of [`pg-sql`](https://github.com/calebmer/pg-sql), while giving you a handful of helper functions to make building queries from dynamic, user-provided values much, much easier.
 
 ---
 

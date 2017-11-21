@@ -185,6 +185,17 @@ sql`
 
 Create a SQL "ORDER BY" clause from an array of `params`. The params are column name identifiers. They default to `ASC NULLS LAST`, but can be prefixed with `'-'` to denote `DESC NULLS LAST`.
 
+#### `SELECT`
+`SELECT([table: String], values: Object|Array<Object>|Array<String>)`
+
+```js
+sql`
+  ${SELECT(['id', 'name'])}
+  FROM users
+  WHERE id = '1'
+`
+```
+
 #### `UPDATE`
 `UPDATE(table: String, values: Object|Array<Object>)`
 

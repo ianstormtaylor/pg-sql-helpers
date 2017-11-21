@@ -36,7 +36,7 @@ function AND(ident, params, options = {}) {
  * Create a SQL "INSERT" statement from a dictionary or list of `values`.
  *
  * @param {String} table
- * @param {Object|Array} value
+ * @param {Object|Array<Object>} values
  * @return {Object}
  */
 
@@ -46,25 +46,33 @@ function INSERT(table, values) {
 }
 
 /**
- * Create a list of escaped, literal SQL identifiers from the keys of an `object`.
+ * Create a list of SQL identifiers from a `value`.
  *
- * @param {Object} object
+ * @param {String} table (optional)
+ * @param {Object|Array<Object>|Array<String>} value
  * @return {String}
  */
 
-function KEYS(object, options = {}) {
+function KEYS(table, value, options = {}) {
+  if (table != null && !is.string(table)) {
+    value = table
+    table = null
+  }
+
   const { delimiter = ', ' } = options
+  let keys
 
-  if (Array.isArray(object)) {
-    object = object[0]
+  if (is.object(value)) {
+    keys = getDefinedKeys(value)
+  } else if (is.array(value) && is.object(value[0])) {
+    keys = getDefinedKeys(value[0])
+  } else if (is.array(value) && is.string(value[0])) {
+    keys = value
+  } else {
+    throw new Error(`The \`KEYS\` SQL helper must be passed an object, an array of objects or an array of strings, but you passed: ${value}`)
   }
 
-  if (typeof object !== 'object') {
-    throw new Error(`The \`KEYS\` SQL helper must be passed an object or an array of objects, but you passed: ${object}`)
-  }
-
-  const keys = getDefinedKeys(object)
-  const idents = keys.map(k => sql.ident(k))
+  const idents = keys.map(k => table ? sql.ident(table, k) : sql.ident(k))
   const query = sql`${sql.join(idents, delimiter)}`
   return query
 }
@@ -146,15 +154,33 @@ function ORDER_BY(ident, params) {
 }
 
 /**
- * Create a SQL "update" list of columns and values.
+ * Create a SQL "SELECT" clause for `table` with `values`.
  *
  * @param {String} table
- * @param {Object|Array} values
+ * @param {Object|Array<String>|Array<Object>} values
+ * @return {Object}
+ */
+
+function SELECT(table, values) {
+  if (table != null && !is.string(table)) {
+    values = table
+    table = null
+  }
+
+  const query = sql`SELECT ${KEYS(table, values)}`
+  return query
+}
+
+/**
+ * Create a SQL "UPDATE" clause for `table` with `values`.
+ *
+ * @param {String} table
+ * @param {Object|Array<Object>} values
  * @return {Object}
  */
 
 function UPDATE(table, values) {
-  if (is.object(table)) {
+  if (typeof table != 'string') {
     values = table
     table = null
   }
@@ -273,6 +299,7 @@ const limit = LIMIT
 const offset = OFFSET
 const or = OR
 const orderBy = ORDER_BY
+const select = SELECT
 const update = UPDATE
 const values = VALUES
 const where = WHERE
@@ -291,6 +318,7 @@ export {
   offset, OFFSET,
   or, OR,
   orderBy, ORDER_BY,
+  select, SELECT,
   update, UPDATE,
   values, VALUES,
   where, WHERE,

@@ -89,6 +89,7 @@ All of the helpers are exported in lowercase _and_ uppercase, so you can match y
 - [`OFFSET`](#offset)
 - [`OR`](#or)
 - [`ORDER_BY`](#order_by)
+- [`SELECT`](#select)
 - [`UPDATE`](#update)
 - [`VALUES`](#values)
 - [`WHERE`](#where)

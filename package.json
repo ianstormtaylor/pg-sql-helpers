@@ -10,7 +10,7 @@
     "clean": "rm -rf ./lib ./node_modules",
     "prepublish": "yarn run build",
     "release": "np",
-    "test": "yarn run build && mocha --compilers js:babel-core/register ./test/index.js",
+    "test": "yarn run build && mocha --require babel-core/register ./test/index.js",
     "watch": "babel ./lib --out-dir ./lib --watch"
   },
   "devDependencies": {

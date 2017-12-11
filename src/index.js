@@ -25,6 +25,7 @@ const WHERE_OPERATORS = {
  * @param {String} ident
  * @param {Object} params
  * @param {Object} options
+ * @return {sql}
  */
 
 function AND(ident, params, options = {}) {
@@ -37,7 +38,7 @@ function AND(ident, params, options = {}) {
  *
  * @param {String} table
  * @param {Object|Array<Object>} values
- * @return {Object}
+ * @return {sql}
  */
 
 function INSERT(table, values) {
@@ -50,7 +51,7 @@ function INSERT(table, values) {
  *
  * @param {String} table (optional)
  * @param {Object|Array<Object>|Array<String>} value
- * @return {String}
+ * @return {sql}
  */
 
 function KEYS(table, value, options = {}) {
@@ -81,11 +82,16 @@ function KEYS(table, value, options = {}) {
  * Create a literal SQL "LIMIT" string from `number`.
  *
  * @param {Number} number
- * @return {Mixed}
+ * @param {Object} options
+ * @return {sql}
  */
 
-function LIMIT(number) {
+function LIMIT(number, options = {}) {
   if (number == null) return sql``
+
+  if (options.max) {
+    number = Math.min(number, options.max)
+  }
 
   const query = number === Infinity
     ? sql`LIMIT ALL`
@@ -98,11 +104,17 @@ function LIMIT(number) {
  * Create a literal SQL "OFFSET" string from `number`.
  *
  * @param {Number} number
- * @return {Mixed}
+ * @param {Object} options
+ * @return {sql}
  */
 
-function OFFSET(number) {
+function OFFSET(number, options = {}) {
   if (number == null) return sql``
+
+  if (options.max) {
+    number = Math.min(number, options.max)
+  }
+
   const query = sql`OFFSET ${number}`
   return query
 }
@@ -113,6 +125,7 @@ function OFFSET(number) {
  * @param {String} ident
  * @param {Object} params
  * @param {Object} options
+ * @return {sql}
  */
 
 function OR(ident, params, options = {}) {
@@ -124,7 +137,7 @@ function OR(ident, params, options = {}) {
  * Create a literal SQL "ORDER BY" string from `params`.
  *
  * @param {Array} params
- * @return {Mixed}
+ * @return {sql}
  */
 
 function ORDER_BY(ident, params) {
@@ -158,7 +171,7 @@ function ORDER_BY(ident, params) {
  *
  * @param {String} table
  * @param {Object|Array<String>|Array<Object>} values
- * @return {Object}
+ * @return {sql}
  */
 
 function SELECT(table, values) {
@@ -176,7 +189,7 @@ function SELECT(table, values) {
  *
  * @param {String} table
  * @param {Object|Array<Object>} values
- * @return {Object}
+ * @return {sql}
  */
 
 function UPDATE(table, values) {
@@ -194,7 +207,7 @@ function UPDATE(table, values) {
  * Create a list of placeholders for the values of an `object`.
  *
  * @param {Object} object
- * @return {String}
+ * @return {sql}
  */
 
 function VALUES(object, options = {}) {
@@ -225,7 +238,7 @@ function VALUES(object, options = {}) {
  *
  * @param {String} ident
  * @param {Object} params
- * @return {Object}
+ * @return {sql}
  */
 
 function WHERE(ident, params, options = {}) {

@@ -8,6 +8,6 @@ export const input = sql`
 `
 
 export const output = {
-  text: `INSERT INTO users (name, age) VALUES ('abe', 42) ON CONFLICT DO UPDATE SET ("age") = ($1)`,
+  text: `INSERT INTO users (name, age) VALUES ('abe', 42) ON CONFLICT DO UPDATE SET ("age") = ROW($1)`,
   values: [42],
 }

@@ -199,7 +199,7 @@ function UPDATE(table, values) {
   }
 
   const id = table ? sql`${sql.ident(table)}` : sql``
-  const query = sql`UPDATE ${id} SET (${KEYS(values)}) = (${VALUES(values)})`
+  const query = sql`UPDATE ${id} SET (${KEYS(values)}) = ROW(${VALUES(values)})`
   return query
 }
 

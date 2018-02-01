@@ -7,6 +7,6 @@ export const input = sql`
 `
 
 export const output = {
-  text: `UPDATE "user" SET ("name", "age") = ($1, $2)`,
+  text: `UPDATE "user" SET ("name", "age") = ROW($1, $2)`,
   values: ['abe', 42],
 }

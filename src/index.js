@@ -188,7 +188,7 @@ function SELECT(table, values) {
  * Create a SQL "UPDATE" clause for `table` with `values`.
  *
  * @param {String} table
- * @param {Object|Array<Object>} values
+ * @param {Object} values
  * @return {sql}
  */
 
@@ -198,8 +198,15 @@ function UPDATE(table, values) {
     table = null
   }
 
+  if (!is.object(values)) {
+    throw new Error(`The \`UPDATE\` SQL helper must be passed an object, but you passed: ${values}`)
+  }
+
+  const keys = getDefinedKeys(values)
   const id = table ? sql`${sql.ident(table)}` : sql``
-  const query = sql`UPDATE ${id} SET (${KEYS(values)}) = ROW(${VALUES(values)})`
+  const query = keys.length == 1
+    ? sql`UPDATE ${id} SET ${KEYS(values)} = ${VALUES(values)}`
+    : sql`UPDATE ${id} SET (${KEYS(values)}) = (${VALUES(values)})`
   return query
 }
 

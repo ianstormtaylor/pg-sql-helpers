@@ -34,6 +34,27 @@ function AND(ident, params, options = {}) {
 }
 
 /**
+ * Create a SQL column expression, with optional table reference.
+ * 
+ * @param {String} table (optional)
+ * @param {String} column
+ * @return {sql}
+ */
+
+function COLUMN(table, column) {
+  if (arguments.length === 1) {
+    column = table
+    table = null
+  }
+
+  const ref = table 
+    ? sql`${sql.ident(table)}.${sql.ident(column)}` 
+    : sql`${sql.ident(column)}`
+
+  return ref
+}
+
+/**
  * Create a SQL "INSERT" statement from a dictionary or list of `values`.
  *
  * @param {String} table
@@ -134,34 +155,28 @@ function OR(ident, params, options = {}) {
 }
 
 /**
- * Create a literal SQL "ORDER BY" string from `params`.
+ * Create a SQL "ORDER BY" string from `sorts`.
  *
- * @param {Array} params
+ * @param {String} table (optional)
+ * @param {Array} sorts
  * @return {sql}
  */
 
-function ORDER_BY(ident, params) {
-  if (Array.isArray(ident)) {
-    params = ident
-    ident = ''
+function ORDER_BY(table, sorts) {
+  if (Array.isArray(table)) {
+    sorts = table
+    table = null
   }
 
-  if (!Array.isArray(params)) {
-    throw new Error(`The \`ORDER_BY\` SQL helper must be passed an array of sorting parameters, but you passed: ${params}`)
+  if (!Array.isArray(sorts)) {
+    throw new Error(`The \`ORDER_BY\` SQL helper must be passed an array of sorting parameters, but you passed: ${sorts}`)
   }
 
-  const values = params.map((param) => {
-    let asc = true
+  if (!sorts.length) {
+    return sql``
+  }
 
-    if (param.startsWith('-')) {
-      asc = false
-      param = param.slice(1)
-    }
-
-    const id = ident ? sql`${sql.ident(ident)}.${sql.ident(param)}` : sql`${sql.ident(param)}`
-    return sql`${id} ${sql.raw(asc ? 'ASC' : 'DESC')} NULLS LAST`
-  })
-
+  const values = sorts.map(sort => SORT(table, sort))
   const query = sql`ORDER BY ${sql.join(values, ', ')}`
   return query
 }
@@ -182,6 +197,30 @@ function SELECT(table, values) {
 
   const query = sql`SELECT ${KEYS(table, values)}`
   return query
+}
+
+/**
+ * Create a SQL sort expression.
+ * 
+ * @param {String} table (optional)
+ * @param {String} column
+ * @return {sql}
+ */
+
+function SORT(table, column) {
+  if (arguments.length === 1) {
+    column = table
+    table = null
+  }
+
+  let order = 'ASC'
+
+  if (column.startsWith('-')) {
+    order = 'DESC'
+    column = column.slice(1)
+  }
+
+  return sql`${COLUMN(table, column)} ${sql.raw(order)} NULLS LAST`
 }
 
 /**
@@ -324,6 +363,7 @@ function getDefinedKeys(object) {
  */
 
 const and = AND
+const column = COLUMN
 const insert = INSERT
 const keys = KEYS
 const limit = LIMIT
@@ -331,6 +371,7 @@ const offset = OFFSET
 const or = OR
 const orderBy = ORDER_BY
 const select = SELECT
+const sort = SORT
 const update = UPDATE
 const values = VALUES
 const where = WHERE
@@ -343,6 +384,7 @@ const where = WHERE
 
 export {
   and, AND,
+  column, COLUMN,
   insert, INSERT,
   keys, KEYS,
   limit, LIMIT,
@@ -350,6 +392,7 @@ export {
   or, OR,
   orderBy, ORDER_BY,
   select, SELECT,
+  sort, SORT,
   update, UPDATE,
   values, VALUES,
   where, WHERE,

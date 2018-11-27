@@ -1,3 +1,19 @@
+
+### `0.2.1` — November 27, 2018
+
+###### NEW
+
+**Added the `COLUMN` and `SORT` helpers.** These are lower level than the existing `ORDER_BY` helper and can be useful when you need to construct more complex `ORDER BY` clauses from different tables.
+
+```js
+COLUMN('users', 'name')
+// `"users"."name"`
+```
+```js
+SORT('users', '-name')
+// "users"."name" DESC NULLS LAST
+```
+
 ### `0.2.0` — November 26, 2018
 
 ###### BREAKING

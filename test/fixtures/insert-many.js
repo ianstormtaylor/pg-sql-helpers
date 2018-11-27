@@ -10,6 +10,6 @@ export const input = sql`
 `
 
 export const output = {
-  text: `INSERT INTO "users" ("name", "age") VALUES ($1, $2), ($3, $4)`,
-  values: ['alice', 42, 'ben', 31],
+  text: `INSERT INTO "users" ("age", "name") VALUES ($1, $2), ($3, $4)`,
+  values: [42, 'alice', 31, 'ben'],
 }

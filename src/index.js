@@ -227,12 +227,23 @@ function VALUES(object, options = {}) {
     object = [object]
   }
 
-  const values = object.map((obj) => {
+  let columns
+
+  const values = object.map((obj, i) => {
     if (!is.object(obj)) {
       throw new Error(`The \`VALUES\` SQL helper must be passed an object or an array of objects, but you passed: ${object}`)
     }
 
-    const vals = getDefinedKeys(obj).map(k => sql`${obj[k]}`)
+    const keys = getDefinedKeys(obj)
+    const vals = keys.map(k => sql`${obj[k]}`)
+    const cols = keys.join(',')
+
+    if (i === 0) {
+      columns = cols
+    } else if (cols !== columns) {
+      throw new Error(`Every entry in the array passed to the \`VALUES\` SQL helper must have the same columns, but you passed: ${object}`)
+    }
+
     return sql`${sql.join(vals, delimiter)}`
   })
 
@@ -305,7 +316,7 @@ function WHERE(ident, params, options = {}) {
  */
 
 function getDefinedKeys(object) {
-  return Object.keys(object).filter(k => object[k] !== undefined)
+  return Object.keys(object).filter(k => object[k] !== undefined).sort()
 }
 
 /**

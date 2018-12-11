@@ -87,6 +87,55 @@ function COLUMNS(table, value, options = {}) {
 }
 
 /**
+ * Create a SQL composite value for the values of an `object`.
+ *
+ * @param {Object} object
+ * @return {sql}
+ */
+
+function COMPOSITE(object) {
+  if (!is.object(object)) {
+    throw new Error(`The \`COMPOSITE\` SQL helper must be passed an object, but you passed: ${object}`)
+  }
+
+  const keys = getDefinedKeys(object)
+  const vals = keys.map(k => sql`${object[k]}`)
+  const query = sql`(${sql.join(vals, ', ')})`
+  return query
+}
+
+/**
+ * Create a list SQL composite values for the values of an `array` of objects.
+ *
+ * @param {Array} array
+ * @return {sql}
+ */
+
+function COMPOSITES(array) {
+  if (!Array.isArray(array)) {
+    array = [array]
+  }
+
+  let columns
+  const composites = array.map((object, i) => {
+    const composite = COMPOSITE(object)
+    const keys = getDefinedKeys(object)
+    const cols = keys.join(',')
+
+    if (i === 0) {
+      columns = cols
+    } else if (cols !== columns) {
+      throw new Error(`Every entry in a SQL composite expression must have the same columns, but you passed: ${array}`)
+    }
+
+    return composite
+  })
+
+  const query = sql.join(composites, ', ')
+  return query
+}
+
+/**
  * Create a SQL "INSERT" statement from a dictionary or list of `values`.
  *
  * @param {String} table
@@ -193,13 +242,7 @@ function ORDER_BY(table, sorts) {
  */
 
 function ROW(object) {
-  if (!is.object(object)) {
-    throw new Error(`The \`ROW\` SQL helper must be passed an object, but you passed: ${object}`)
-  }
-
-  const keys = getDefinedKeys(object)
-  const values = keys.map(k => sql`${object[k]}`)
-  const query = sql`ROW (${sql.join(values, ', ')})`
+  const query = sql`ROW ${COMPOSITE(object)}`
   return query
 }
 
@@ -284,27 +327,7 @@ function VALUES(object) {
     object = [object]
   }
 
-  let columns
-
-  const values = object.map((obj, i) => {
-    if (!is.object(obj)) {
-      throw new Error(`The \`VALUES\` SQL helper must be passed an object or an array of objects, but you passed: ${object}`)
-    }
-
-    const keys = getDefinedKeys(obj)
-    const vals = keys.map(k => sql`${obj[k]}`)
-    const cols = keys.join(',')
-
-    if (i === 0) {
-      columns = cols
-    } else if (cols !== columns) {
-      throw new Error(`Every entry in the array passed to the \`VALUES\` SQL helper must have the same columns, but you passed: ${object}`)
-    }
-
-    return sql`${sql.join(vals, ', ')}`
-  })
-
-  const query = sql`VALUES (${sql.join(values, '), (')})`
+  const query = sql`VALUES ${COMPOSITES(object)}`
   return query
 }
 
@@ -383,11 +406,14 @@ function getDefinedKeys(object) {
 const and = AND
 const column = COLUMN
 const columns = COLUMNS
+const composite = COMPOSITE
+const composites = COMPOSITES
 const insert = INSERT
 const limit = LIMIT
 const offset = OFFSET
 const or = OR
 const orderBy = ORDER_BY
+const row = ROW
 const select = SELECT
 const sort = SORT
 const update = UPDATE
@@ -404,11 +430,14 @@ export {
   and, AND,
   column, COLUMN,
   columns, COLUMNS,
+  composite, COMPOSITE,
+  composites, COMPOSITES,
   insert, INSERT,
   limit, LIMIT,
   offset, OFFSET,
   or, OR,
   orderBy, ORDER_BY,
+  row, ROW,
   select, SELECT,
   sort, SORT,
   update, UPDATE,

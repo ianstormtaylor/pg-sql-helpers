@@ -1,9 +1,9 @@
 
 import { sql } from 'pg-sql'
-import { KEYS } from '../..'
+import { COLUMNS } from '../../lib'
 
 export const input = sql`
-  SELECT ${KEYS('users', ['id', 'name'])}
+  SELECT ${COLUMNS('users', ['id', 'name'])}
   FROM users
 `
 

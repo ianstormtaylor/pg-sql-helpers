@@ -42,29 +42,16 @@ function AND(ident, params, options = {}) {
  */
 
 function COLUMN(table, column) {
-  if (arguments.length === 1) {
+  if (column == null) {
     column = table
     table = null
   }
 
   const ref = table 
-    ? sql`${sql.ident(table)}.${sql.ident(column)}` 
+    ? sql`${sql.ident(table, column)}` 
     : sql`${sql.ident(column)}`
 
   return ref
-}
-
-/**
- * Create a SQL "INSERT" statement from a dictionary or list of `values`.
- *
- * @param {String} table
- * @param {Object|Array<Object>} values
- * @return {sql}
- */
-
-function INSERT(table, values) {
-  const query = sql`INSERT INTO ${sql.ident(table)} (${KEYS(values)}) VALUES (${VALUES(values)})`
-  return query
 }
 
 /**
@@ -75,7 +62,7 @@ function INSERT(table, values) {
  * @return {sql}
  */
 
-function KEYS(table, value, options = {}) {
+function COLUMNS(table, value, options = {}) {
   if (table != null && !is.string(table)) {
     value = table
     table = null
@@ -91,11 +78,24 @@ function KEYS(table, value, options = {}) {
   } else if (is.array(value) && is.string(value[0])) {
     keys = value
   } else {
-    throw new Error(`The \`KEYS\` SQL helper must be passed an object, an array of objects or an array of strings, but you passed: ${value}`)
+    throw new Error(`The \`COLUMNS\` SQL helper must be passed an object, an array of objects or an array of strings, but you passed: ${value}`)
   }
 
-  const idents = keys.map(k => table ? sql.ident(table, k) : sql.ident(k))
+  const idents = keys.map(k => COLUMN(table, k))
   const query = sql`${sql.join(idents, delimiter)}`
+  return query
+}
+
+/**
+ * Create a SQL "INSERT" statement from a dictionary or list of `values`.
+ *
+ * @param {String} table
+ * @param {Object|Array<Object>} values
+ * @return {sql}
+ */
+
+function INSERT(table, values) {
+  const query = sql`INSERT INTO ${sql.ident(table)} (${COLUMNS(values)}) ${VALUES(values)}`
   return query
 }
 
@@ -108,7 +108,9 @@ function KEYS(table, value, options = {}) {
  */
 
 function LIMIT(number, options = {}) {
-  if (number == null) return sql``
+  if (number == null) {
+    return sql``
+  }
 
   if (options.max) {
     number = Math.min(number, options.max)
@@ -130,7 +132,9 @@ function LIMIT(number, options = {}) {
  */
 
 function OFFSET(number, options = {}) {
-  if (number == null) return sql``
+  if (number == null) {
+    return sql``
+  }
 
   if (options.max) {
     number = Math.min(number, options.max)
@@ -182,6 +186,24 @@ function ORDER_BY(table, sorts) {
 }
 
 /**
+ * Create a SQL `ROW` expression for the values of an `object`.
+ *
+ * @param {Object} object
+ * @return {sql}
+ */
+
+function ROW(object) {
+  if (!is.object(object)) {
+    throw new Error(`The \`ROW\` SQL helper must be passed an object, but you passed: ${object}`)
+  }
+
+  const keys = getDefinedKeys(object)
+  const values = keys.map(k => sql`${object[k]}`)
+  const query = sql`ROW (${sql.join(values, ', ')})`
+  return query
+}
+
+/**
  * Create a SQL "SELECT" clause for `table` with `values`.
  *
  * @param {String} table
@@ -195,7 +217,7 @@ function SELECT(table, values) {
     table = null
   }
 
-  const query = sql`SELECT ${KEYS(table, values)}`
+  const query = sql`SELECT ${COLUMNS(table, values)}`
   return query
 }
 
@@ -244,8 +266,9 @@ function UPDATE(table, values) {
   const keys = getDefinedKeys(values)
   const id = table ? sql`${sql.ident(table)}` : sql``
   const query = keys.length == 1
-    ? sql`UPDATE ${id} SET ${KEYS(values)} = ${VALUES(values)}`
-    : sql`UPDATE ${id} SET (${KEYS(values)}) = (${VALUES(values)})`
+    ? sql`UPDATE ${id} SET ${COLUMN(keys[0])} = ${values[keys[0]]}`
+    : sql`UPDATE ${id} SET (${COLUMNS(values)}) = ${ROW(values)}`
+
   return query
 }
 
@@ -256,12 +279,7 @@ function UPDATE(table, values) {
  * @return {sql}
  */
 
-function VALUES(object, options = {}) {
-  const {
-    delimiter = ', ',
-    groupDelimiter = '), (',
-  } = options
-
+function VALUES(object) {
   if (!Array.isArray(object)) {
     object = [object]
   }
@@ -283,10 +301,10 @@ function VALUES(object, options = {}) {
       throw new Error(`Every entry in the array passed to the \`VALUES\` SQL helper must have the same columns, but you passed: ${object}`)
     }
 
-    return sql`${sql.join(vals, delimiter)}`
+    return sql`${sql.join(vals, ', ')}`
   })
 
-  const query = sql`${sql.join(values, groupDelimiter)}`
+  const query = sql`VALUES (${sql.join(values, '), (')})`
   return query
 }
 
@@ -364,8 +382,8 @@ function getDefinedKeys(object) {
 
 const and = AND
 const column = COLUMN
+const columns = COLUMNS
 const insert = INSERT
-const keys = KEYS
 const limit = LIMIT
 const offset = OFFSET
 const or = OR
@@ -385,8 +403,8 @@ const where = WHERE
 export {
   and, AND,
   column, COLUMN,
+  columns, COLUMNS,
   insert, INSERT,
-  keys, KEYS,
   limit, LIMIT,
   offset, OFFSET,
   or, OR,

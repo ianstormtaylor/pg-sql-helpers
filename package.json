@@ -38,6 +38,7 @@
   "dependencies": {
     "is": "^3.2.1",
     "is-plain-object": "^2.0.4",
-    "pg-sql": "^1.1.0"
+    "pg-sql": "^1.1.0",
+    "prettier": "^2.2.1"
   }
 }

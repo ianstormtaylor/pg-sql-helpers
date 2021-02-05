@@ -18,6 +18,7 @@ const WHERE_OPERATORS = {
   ne: '!=',
   neq: '!=',
   like: 'LIKE',
+  ilike: 'ILIKE',
 }
 
 /**

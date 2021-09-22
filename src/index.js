@@ -345,7 +345,7 @@ function UPSERT(table, constraint, values) {
     values
   )}) ${VALUES(values)} ON CONFLICT (${COLUMNS(
     constraint
-  )}) DO UPDATE SET (${COLUMNS(values)}) = (${COLUMNS('EXCLUDED', values)})`
+  )}) DO UPDATE SET (${COLUMNS(values)}) = (${COLUMNS('excluded', values)})`
   return query
 }
 

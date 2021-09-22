@@ -1,4 +1,3 @@
-
 import is from 'is'
 import isPlainObject from 'is-plain-object'
 import { sql } from 'pg-sql'
@@ -37,7 +36,7 @@ function AND(ident, params, options = {}) {
 
 /**
  * Create a SQL column expression, with optional table reference.
- * 
+ *
  * @param {String} table (optional)
  * @param {String} column
  * @return {sql}
@@ -49,8 +48,8 @@ function COLUMN(table, column) {
     table = null
   }
 
-  const ref = table 
-    ? sql`${sql.ident(table, column)}` 
+  const ref = table
+    ? sql`${sql.ident(table, column)}`
     : sql`${sql.ident(column)}`
 
   return ref
@@ -80,10 +79,12 @@ function COLUMNS(table, value, options = {}) {
   } else if (is.array(value) && is.string(value[0])) {
     keys = value
   } else {
-    throw new Error(`The \`COLUMNS\` SQL helper must be passed an object, an array of objects or an array of strings, but you passed: ${value}`)
+    throw new Error(
+      `The \`COLUMNS\` SQL helper must be passed an object, an array of objects or an array of strings, but you passed: ${value}`
+    )
   }
 
-  const idents = keys.map(k => COLUMN(table, k))
+  const idents = keys.map((k) => COLUMN(table, k))
   const query = sql`${sql.join(idents, delimiter)}`
   return query
 }
@@ -97,11 +98,13 @@ function COLUMNS(table, value, options = {}) {
 
 function COMPOSITE(object) {
   if (!is.object(object)) {
-    throw new Error(`The \`COMPOSITE\` SQL helper must be passed an object, but you passed: ${object}`)
+    throw new Error(
+      `The \`COMPOSITE\` SQL helper must be passed an object, but you passed: ${object}`
+    )
   }
 
   const keys = getDefinedKeys(object)
-  const vals = keys.map(k => sql`${object[k]}`)
+  const vals = keys.map((k) => sql`${object[k]}`)
   const query = sql`(${sql.join(vals, ', ')})`
   return query
 }
@@ -127,7 +130,9 @@ function COMPOSITES(array) {
     if (i === 0) {
       columns = cols
     } else if (cols !== columns) {
-      throw new Error(`Every entry in a SQL composite expression must have the same columns, but you passed: ${array}`)
+      throw new Error(
+        `Every entry in a SQL composite expression must have the same columns, but you passed: ${array}`
+      )
     }
 
     return composite
@@ -146,7 +151,9 @@ function COMPOSITES(array) {
  */
 
 function INSERT(table, values) {
-  const query = sql`INSERT INTO ${sql.ident(table)} (${COLUMNS(values)}) ${VALUES(values)}`
+  const query = sql`INSERT INTO ${sql.ident(table)} (${COLUMNS(
+    values
+  )}) ${VALUES(values)}`
   return query
 }
 
@@ -167,9 +174,7 @@ function LIMIT(number, options = {}) {
     number = Math.min(number, options.max)
   }
 
-  const query = number === Infinity
-    ? sql`LIMIT ALL`
-    : sql`LIMIT ${number}`
+  const query = number === Infinity ? sql`LIMIT ALL` : sql`LIMIT ${number}`
 
   return query
 }
@@ -224,14 +229,16 @@ function ORDER_BY(table, sorts) {
   }
 
   if (!Array.isArray(sorts)) {
-    throw new Error(`The \`ORDER_BY\` SQL helper must be passed an array of sorting parameters, but you passed: ${sorts}`)
+    throw new Error(
+      `The \`ORDER_BY\` SQL helper must be passed an array of sorting parameters, but you passed: ${sorts}`
+    )
   }
 
   if (!sorts.length) {
     return sql``
   }
 
-  const values = sorts.map(sort => SORT(table, sort))
+  const values = sorts.map((sort) => SORT(table, sort))
   const query = sql`ORDER BY ${sql.join(values, ', ')}`
   return query
 }
@@ -268,7 +275,7 @@ function SELECT(table, values) {
 
 /**
  * Create a SQL sort expression.
- * 
+ *
  * @param {String} table (optional)
  * @param {String} column
  * @return {sql}
@@ -305,15 +312,40 @@ function UPDATE(table, values) {
   }
 
   if (!is.object(values)) {
-    throw new Error(`The \`UPDATE\` SQL helper must be passed an object, but you passed: ${values}`)
+    throw new Error(
+      `The \`UPDATE\` SQL helper must be passed an object, but you passed: ${values}`
+    )
   }
 
   const keys = getDefinedKeys(values)
   const id = table ? sql`${sql.ident(table)}` : sql``
-  const query = keys.length == 1
-    ? sql`UPDATE ${id} SET ${COLUMN(keys[0])} = ${values[keys[0]]}`
-    : sql`UPDATE ${id} SET (${COLUMNS(values)}) = ${ROW(values)}`
+  const query =
+    keys.length == 1
+      ? sql`UPDATE ${id} SET ${COLUMN(keys[0])} = ${values[keys[0]]}`
+      : sql`UPDATE ${id} SET (${COLUMNS(values)}) = ${ROW(values)}`
 
+  return query
+}
+
+/**
+ * Create a SQL "INSERT ON CONFLICT UPDATE" statement from a dictionary or list of `values`.
+ *
+ * @param {String} table
+ * @param {String|Array<String>} constraint
+ * @param {Object|Array<Object>} values
+ * @return {sql}
+ */
+
+function UPSERT(table, constraint, values) {
+  if (typeof constraint === 'string') {
+    constraint = [constraint]
+  }
+
+  const query = sql`INSERT INTO ${sql.ident(table)} (${COLUMNS(
+    values
+  )}) ${VALUES(values)} ON CONFLICT (${COLUMNS(
+    constraint
+  )}) DO UPDATE SET (${COLUMNS(values)}) = (${COLUMNS('EXCLUDED', values)})`
   return query
 }
 
@@ -359,7 +391,7 @@ function WHERE(ident, params, options = {}) {
     if (isPlainObject(value)) {
       const ks = getDefinedKeys(value)
       if (ks.length === 0) return
-      ks.forEach(k => handle([...keys, k], value))
+      ks.forEach((k) => handle([...keys, k], value))
       return
     }
 
@@ -369,8 +401,11 @@ function WHERE(ident, params, options = {}) {
       if (operator === '!=') operator = 'IS NOT'
     }
 
-    const ref = key in WHERE_OPERATORS ? keys.slice(0, -1).join('->') : keys.join('->')
-    const id = ident ? sql`${sql.ident(ident)}.${sql.ident(ref)}` : sql`${sql.ident(ref)}`
+    const ref =
+      key in WHERE_OPERATORS ? keys.slice(0, -1).join('->') : keys.join('->')
+    const id = ident
+      ? sql`${sql.ident(ident)}.${sql.ident(ref)}`
+      : sql`${sql.ident(ref)}`
     const clause = sql`${id} ${sql.raw(operator)} ${value}`
     clauses.push(clause)
   }
@@ -398,7 +433,9 @@ function WHERE(ident, params, options = {}) {
  */
 
 function getDefinedKeys(object) {
-  return Object.keys(object).filter(k => object[k] !== undefined).sort()
+  return Object.keys(object)
+    .filter((k) => object[k] !== undefined)
+    .sort()
 }
 
 /**
@@ -419,6 +456,7 @@ const row = ROW
 const select = SELECT
 const sort = SORT
 const update = UPDATE
+const upsert = UPSERT
 const values = VALUES
 const where = WHERE
 
@@ -429,20 +467,38 @@ const where = WHERE
  */
 
 export {
-  and, AND,
-  column, COLUMN,
-  columns, COLUMNS,
-  composite, COMPOSITE,
-  composites, COMPOSITES,
-  insert, INSERT,
-  limit, LIMIT,
-  offset, OFFSET,
-  or, OR,
-  orderBy, ORDER_BY,
-  row, ROW,
-  select, SELECT,
-  sort, SORT,
-  update, UPDATE,
-  values, VALUES,
-  where, WHERE,
+  and,
+  AND,
+  column,
+  COLUMN,
+  columns,
+  COLUMNS,
+  composite,
+  COMPOSITE,
+  composites,
+  COMPOSITES,
+  insert,
+  INSERT,
+  limit,
+  LIMIT,
+  offset,
+  OFFSET,
+  or,
+  OR,
+  orderBy,
+  ORDER_BY,
+  row,
+  ROW,
+  select,
+  SELECT,
+  sort,
+  SORT,
+  update,
+  UPDATE,
+  upsert,
+  UPSERT,
+  values,
+  VALUES,
+  where,
+  WHERE,
 }

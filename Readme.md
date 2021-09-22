@@ -93,6 +93,7 @@ All of the helpers are exported in lowercase _and_ uppercase, so you can match y
       - [`ORDER_BY`](#order_by)
       - [`SELECT`](#select)
       - [`UPDATE`](#update)
+      - [`UPSERT`](#upsert)
       - [`VALUES`](#values)
       - [`WHERE`](#where)
     - [License](#license)
@@ -221,6 +222,19 @@ sql`
 ```
 
 Create a SQL "UPDATE" clause from a set of `values`. Useful when writing dynamic updates based on attributes that may or may not be passed. _In the case of an array of `values`, the keys from the first object in the array will be used._
+
+#### `UPSERT`
+
+`UPSERT(table: String, constraint: String|Array<String>, values: Object|Array<Object>)`
+
+```js
+sql`
+  ${UPSERT('users', 'id', { id: 3, name: 'john', age: 42 })}
+  RETURNING *
+`
+```
+
+Create a SQL "INSERT ON CONFLICT UPDATE" clause from a set of `values`. Useful when writing dynamic inserts where a row might already exist with outdated properties that you want to update. _In the case of an array of `values`, the keys from the first object in the array will be used._
 
 #### `VALUES`
 

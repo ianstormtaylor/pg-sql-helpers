@@ -342,7 +342,9 @@ function UPSERT(table, constraint, values, options = {}) {
     constraint = [constraint]
   }
 
-  const keys = getDefinedKeys(values)
+  const keys = is.object(values)
+    ? getDefinedKeys(values)
+    : getDefinedKeys(values[0])
   const others = keys.filter((k) => !constraint.includes(k))
   const insert = INSERT(table, values)
   const conflict = sql`ON CONFLICT (${COLUMNS(constraint)}) DO`

@@ -6,6 +6,6 @@ export const input = sql`
 `
 
 export const output = {
-  text: `INSERT INTO "users" ("age", "name") VALUES ($1, $2) ON CONFLICT ("name") DO UPDATE SET ("age", "name") = ("excluded"."age", "excluded"."name")`,
+  text: `INSERT INTO "users" ("age", "name") VALUES ($1, $2) ON CONFLICT ("name") DO UPDATE SET ("age") = ("excluded"."age") WHERE ("users"."age") IS DISTINCT FROM ("excluded"."age")`,
   values: [42, 'abe'],
 }

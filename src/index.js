@@ -333,19 +333,31 @@ function UPDATE(table, values) {
  * @param {String} table
  * @param {String|Array<String>} constraint
  * @param {Object|Array<Object>} values
+ * @param {Object} options
  * @return {sql}
  */
 
-function UPSERT(table, constraint, values) {
+function UPSERT(table, constraint, values, options = {}) {
   if (typeof constraint === 'string') {
     constraint = [constraint]
   }
 
-  const query = sql`INSERT INTO ${sql.ident(table)} (${COLUMNS(
-    values
-  )}) ${VALUES(values)} ON CONFLICT (${COLUMNS(
-    constraint
-  )}) DO UPDATE SET (${COLUMNS(values)}) = (${COLUMNS('excluded', values)})`
+  const keys = getDefinedKeys(values)
+  const others = keys.filter((k) => !constraint.includes(k))
+  const insert = INSERT(table, values)
+  const conflict = sql`ON CONFLICT (${COLUMNS(constraint)}) DO`
+  const update =
+    others.length > 0
+      ? sql`UPDATE SET (${COLUMNS(others)}) = (${COLUMNS('excluded', others)})`
+      : sql`NOTHING`
+  const distinct =
+    others.length > 0 && options.distinct !== false
+      ? sql`WHERE (${COLUMNS(table, others)}) IS DISTINCT FROM (${COLUMNS(
+          'excluded',
+          others
+        )})`
+      : sql``
+  const query = sql`${insert} ${conflict} ${update} ${distinct}`
   return query
 }
 
